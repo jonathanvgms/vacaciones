@@ -1,11 +1,20 @@
+using VacacionesApi.Models;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddDbContext<VacacionesContext>(options =>
+    options.UseMySql(
+        "server=localhost;database=vacaciones_db;user=root;password=root!",
+        Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.43-mysql")
+    )
+);
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -16,29 +25,59 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+// ...existing code...
 
-app.MapGet("/weatherforecast", () =>
+// Obtener todos los ámbitos
+app.MapGet("/ambitosferiado", async (VacacionesContext db) =>
+    await db.AmbitoFeriados.ToListAsync())
+    .WithName("GetAmbitosFeriado")
+    .WithOpenApi();
+
+// Obtener un ámbito por ID
+app.MapGet("/ambitosferiado/{id}", async (int id, VacacionesContext db) =>
+    await db.AmbitoFeriados.FindAsync(id) is AmbitoFeriado ambito
+        ? Results.Ok(ambito)
+        : Results.NotFound())
+    .WithName("GetAmbitoFeriadoById")
+    .WithOpenApi();
+
+// Crear un nuevo ámbito
+app.MapPost("/ambitosferiado", async (AmbitoFeriado nuevoAmbito, VacacionesContext db) =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    db.AmbitoFeriados.Add(nuevoAmbito);
+    await db.SaveChangesAsync();
+    return Results.Created($"/ambitosferiado/{nuevoAmbito.IdAmbito}", nuevoAmbito);
 })
-.WithName("GetWeatherForecast")
+.WithName("CreateAmbitoFeriado")
 .WithOpenApi();
 
-app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+// Actualizar un ámbito existente
+app.MapPut("/ambitosferiado/{id}", async (int id, AmbitoFeriado ambitoActualizado, VacacionesContext db) =>
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+    var ambito = await db.AmbitoFeriados.FindAsync(id);
+    if (ambito is null) return Results.NotFound();
+    ambito.Nombre = ambitoActualizado.Nombre;
+    ambito.ModificaionFecha = DateTime.Now;
+    ambito.ModificacionUsuario = ambitoActualizado.ModificacionUsuario;
+    await db.SaveChangesAsync();
+    return Results.Ok(ambito);
+})
+.WithName("UpdateAmbitoFeriado")
+.WithOpenApi();
+
+// Eliminar un ámbito
+app.MapDelete("/ambitosferiado/{id}", async (int id, VacacionesContext db) =>
+{
+    var ambito = await db.AmbitoFeriados.FindAsync(id);
+    if (ambito is null) return Results.NotFound();
+    db.AmbitoFeriados.Remove(ambito);
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+})
+.WithName("DeleteAmbitoFeriado")
+.WithOpenApi();
+
+// ...existing code...
+// --- FIN ENDPOINTS AMBITOFERIADO ---
+
+app.Run();
