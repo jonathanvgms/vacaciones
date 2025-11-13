@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using VacacionesApi.Models;
 using VacacionesApi.Data;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace VacacionesApi.Services
@@ -15,26 +17,88 @@ namespace VacacionesApi.Services
             _context = context;
         }
 
-        public async Task<List<Solicitud>> GetAllSolicitudesAsync()
+        // Obtener todas las solicitudes
+        public async Task<List<SolicitudDto>> GetAllSolicitudesAsync()
+    {
+        return await _context.Solicitudes
+        .Include(s => s.IdEmpleadoNavigation)
+            .ThenInclude(e => e.IdUsuarioNavigation)
+        .Include(s => s.IdEstadoNavigation)
+        .Select(s => new SolicitudDto
         {
-            return await _context.Solicitudes.ToListAsync();
+            IdSolicitud = s.IdSolicitud,
+            IdEmpleado = s.IdEmpleado,
+            NombreEmpleado = s.IdEmpleadoNavigation.IdUsuarioNavigation.Nombre,
+            FechaInicio = s.FechaInicio,
+            FechaFin = s.FechaFin,
+            DiasSolicitados = s.DiasSolicitados,
+            Estado = s.IdEstadoNavigation.Nombre,
+            Motivo = s.Motivo,
+            FechaCreacion = s.FechaCreacion,
+            CreacionUsuario = s.CreacionUsuario
+        })
+        .ToListAsync();
+    }
+
+        // Obtener por ID
+        public async Task<SolicitudDto?> GetSolicitudByIdAsync(int id)
+        {
+            var s = await _context.Solicitudes
+                .Include(s => s.IdEmpleadoNavigation)
+                .Include(s => s.IdEstadoNavigation)
+                .FirstOrDefaultAsync(s => s.IdSolicitud == id);
+
+            if (s == null) return null;
+
+            return new SolicitudDto
+            {
+                IdSolicitud = s.IdSolicitud,
+                IdEmpleado = s.IdEmpleado,
+                NombreEmpleado = s.IdEmpleadoNavigation.IdUsuarioNavigation.Nombre,
+                FechaInicio = s.FechaInicio,
+                FechaFin = s.FechaFin,
+                DiasSolicitados = s.DiasSolicitados,
+                Estado = s.IdEstadoNavigation.Nombre,
+                Motivo = s.Motivo,
+                FechaCreacion = s.FechaCreacion,
+                CreacionUsuario = s.CreacionUsuario
+            };
         }
 
-        public async Task<Solicitud> GetSolicitudByIdAsync(int id)
+        // Crear nueva solicitud
+        public async Task<Solicitud> CreateSolicitudAsync(SolicitudCreateUpdateDto dto)
         {
-            return await _context.Solicitudes.FindAsync(id);
-        }
+            var solicitud = new Solicitud
+            {
+                IdEmpleado = dto.IdEmpleado,
+                FechaInicio = dto.FechaInicio,
+                FechaFin = dto.FechaFin,
+                DiasSolicitados = dto.DiasSolicitados,
+                IdEstado = dto.IdEstado,
+                Motivo = dto.Motivo,
+                FechaCreacion = DateTime.Now,
+                CreacionUsuario = dto.CreacionUsuario
+            };
 
-        public async Task<Solicitud> CreateSolicitudAsync(Solicitud solicitud)
-        {
             _context.Solicitudes.Add(solicitud);
             await _context.SaveChangesAsync();
             return solicitud;
         }
 
-        public async Task<Solicitud> UpdateSolicitudAsync(Solicitud solicitud)
+        // Actualizar solicitud
+        public async Task<Solicitud?> UpdateSolicitudAsync(int id, SolicitudCreateUpdateDto dto)
         {
-            _context.Solicitudes.Update(solicitud);
+            var solicitud = await _context.Solicitudes.FindAsync(id);
+            if (solicitud == null) return null;
+
+            solicitud.IdEmpleado = dto.IdEmpleado;
+            solicitud.FechaInicio = dto.FechaInicio;
+            solicitud.FechaFin = dto.FechaFin;
+            solicitud.DiasSolicitados = dto.DiasSolicitados;
+            solicitud.IdEstado = dto.IdEstado;
+            solicitud.Motivo = dto.Motivo;
+            solicitud.CreacionUsuario = dto.CreacionUsuario;
+
             await _context.SaveChangesAsync();
             return solicitud;
         }
@@ -47,6 +111,11 @@ namespace VacacionesApi.Services
                 _context.Solicitudes.Remove(solicitud);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        internal async Task CreateSolicitudAsync(Solicitud solicitud)
+        {
+            throw new NotImplementedException();
         }
     }
 }

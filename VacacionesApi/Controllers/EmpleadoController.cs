@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using VacacionesApi.Models;
 using VacacionesApi.Services;
@@ -16,53 +15,103 @@ namespace VacacionesApi.Controllers
             _empleadoService = empleadoService;
         }
 
+        // ✅ GET: api/Empleado
         [HttpGet]
-        public ActionResult<IEnumerable<Empleado>> GetEmpleados()
+        public async Task<ActionResult<IEnumerable<EmpleadoDTO>>> GetEmpleados()
         {
-            var empleados = _empleadoService.GetAllEmpleadosAsync();
-            return Ok(empleados);
+            var empleados = await _empleadoService.GetAllEmpleadosAsync();
+
+            // Conversión manual a DTO
+            var listaDTO = empleados.Select(e => new EmpleadoDTO
+            {
+                IdEmpleado = e.IdEmpleado,
+                IdUsuario = e.IdUsuario,
+                IdDepartamento = e.IdDepartamento,
+                Cargo = e.Cargo,
+                FechaIngreso = e.FechaIngreso
+            }).ToList();
+
+            return Ok(listaDTO);
         }
 
+        // ✅ GET: api/Empleado/{id}
         [HttpGet("{id}")]
-        public ActionResult<Empleado> GetEmpleado(int id)
+        public async Task<ActionResult<EmpleadoDTO>> GetEmpleado(int id)
         {
-            var empleado = _empleadoService. GetEmpleadoByIdAsync(id);
+            var empleado = await _empleadoService.GetEmpleadoByIdAsync(id);
             if (empleado == null)
             {
                 return NotFound();
             }
-            return Ok(empleado);
+
+            var dto = new EmpleadoDTO
+            {
+                IdEmpleado = empleado.IdEmpleado,
+                IdUsuario = empleado.IdUsuario,
+                IdDepartamento = empleado.IdDepartamento,
+                Cargo = empleado.Cargo,
+                FechaIngreso = empleado.FechaIngreso
+            };
+
+            return Ok(dto);
         }
 
+        // ✅ POST: api/Empleado
         [HttpPost]
-        public async Task<ActionResult<Empleado>> CreateEmpleado(Empleado empleado)
+        public async Task<ActionResult<EmpleadoDTO>> CreateEmpleado(EmpleadoCreateDTO dto)
         {
-           await _empleadoService.CreateEmpleadoAsync(empleado);
-            return CreatedAtAction(nameof(GetEmpleado), new { id = empleado.IdEmpleado }, empleado);
+            var empleado = new Empleado
+            {
+                IdUsuario = dto.IdUsuario,
+                IdDepartamento = dto.IdDepartamento,
+                Cargo = dto.Cargo,
+                FechaIngreso = dto.FechaIngreso,
+                CreacionFecha = DateTime.Now,
+                CreacionUsuario = "sistema"
+            };
+
+            var creado = await _empleadoService.CreateEmpleadoAsync(empleado);
+
+            var empleadoDTO = new EmpleadoDTO
+            {
+                IdEmpleado = creado.IdEmpleado,
+                IdUsuario = creado.IdUsuario,
+                IdDepartamento = creado.IdDepartamento,
+                Cargo = creado.Cargo,
+                FechaIngreso = creado.FechaIngreso
+            };
+
+            return CreatedAtAction(nameof(GetEmpleado), new { id = empleadoDTO.IdEmpleado }, empleadoDTO);
         }
 
+        // ✅ PUT: api/Empleado/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateEmpleado(int id, Empleado empleado)
+        public async Task<IActionResult> UpdateEmpleado(int id, EmpleadoUpdateDTO dto)
         {
-            if (id != empleado.IdEmpleado)
-            {
+            if (id != dto.IdEmpleado)
                 return BadRequest();
-            }
 
-            var existingEmpleado = _empleadoService.UpdateEmpleadoAsync;
-            if (existingEmpleado == null)
-            {
+            var empleado = await _empleadoService.GetEmpleadoByIdAsync(id);
+            if (empleado == null)
                 return NotFound();
-            }
+
+            // Actualizamos manualmente los campos
+            empleado.Cargo = dto.Cargo;
+            empleado.IdUsuario = dto.IdUsuario;
+            empleado.IdDepartamento = dto.IdDepartamento;
+            empleado.FechaIngreso = dto.FechaIngreso;
+            empleado.ModificacionFecha = DateTime.Now;
+            empleado.ModificaionUsuario = "sistema";
 
             await _empleadoService.UpdateEmpleadoAsync(empleado);
             return NoContent();
         }
 
+        // ✅ DELETE: api/Empleado/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEmpleado(int id)
         {
-            var empleado = _empleadoService.DeleteEmpleadoAsync(id);
+            var empleado = await _empleadoService.GetEmpleadoByIdAsync(id);
             if (empleado == null)
             {
                 return NotFound();

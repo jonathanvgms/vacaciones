@@ -39,30 +39,25 @@ namespace VacacionesApi.Controllers
 
         // POST: api/solicitud
         [HttpPost]
-        public async Task<ActionResult<Solicitud>> CreateSolicitud([FromBody] Solicitud solicitud)
+        public async Task<ActionResult<Solicitud>> CreateSolicitud([FromBody] SolicitudCreateUpdateDto solicitudDto)    
         {
-            var nuevaSolicitud = await _solicitudService.CreateSolicitudAsync(solicitud);
-            return CreatedAtAction(nameof(GetSolicitud), new { id = nuevaSolicitud.IdSolicitud }, nuevaSolicitud);
+        var nuevaSolicitud = await _solicitudService.CreateSolicitudAsync(solicitudDto);
+        return CreatedAtAction(nameof(GetSolicitud), new { id = nuevaSolicitud.IdSolicitud }, nuevaSolicitud);
         }
 
         // PUT: api/solicitud/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateSolicitud(int id, [FromBody] Solicitud solicitud)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateSolicitud(int id, [FromBody] SolicitudCreateUpdateDto solicitudDto)
+    {
+        var existente = await _solicitudService.GetSolicitudByIdAsync(id);
+        if (existente == null)
         {
-            if (id != solicitud.IdSolicitud)
-            {
-                return BadRequest("El ID no coincide con la solicitud enviada.");
-            }
-
-            var existente = await _solicitudService.GetSolicitudByIdAsync(id);
-            if (existente == null)
-            {
-                return NotFound();
-            }
-
-            await _solicitudService.UpdateSolicitudAsync(solicitud);
-            return NoContent();
+        return NotFound();
         }
+
+        await _solicitudService.UpdateSolicitudAsync(id, solicitudDto);
+        return NoContent();
+    }
 
         // DELETE: api/solicitud/5
         [HttpDelete("{id}")]
