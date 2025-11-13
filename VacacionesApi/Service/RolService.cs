@@ -15,38 +15,81 @@ namespace VacacionesApi.Services
             _context = context;
         }
 
-        public async Task<List<Rol>> GetAllRolesAsync()
+        // ✅ Obtener todos los roles
+        public async Task<List<RolDTO>> GetAllRolesAsync()
         {
-            return await _context.Roles.ToListAsync();
+            return await _context.Roles
+                .Select(r => new RolDTO
+                {
+                    IdRol = r.IdRol,
+                    Nombre = r.Nombre,
+                    CreacionFecha = r.CreacionFecha,
+                    CreacionUsuario = r.CreacionUsuario,
+                    ModificacionFecha = r.ModificacionFecha,
+                    ModificacionUsuario = r.ModificacionUsuario
+                })
+                .ToListAsync();
         }
 
-        public async Task<Rol> GetRoleByIdAsync(int id)
+        // ✅ Obtener un rol por ID
+        public async Task<RolDTO?> GetRoleByIdAsync(int id)
         {
-            return await _context.Roles.FindAsync(id);
+            return await _context.Roles
+                .Where(r => r.IdRol == id)
+                .Select(r => new RolDTO
+                {
+                    IdRol = r.IdRol,
+                    Nombre = r.Nombre,
+                    CreacionFecha = r.CreacionFecha,
+                    CreacionUsuario = r.CreacionUsuario,
+                    ModificacionFecha = r.ModificacionFecha,
+                    ModificacionUsuario = r.ModificacionUsuario
+                })
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<Rol> CreateRoleAsync(Rol rol)
+        // ✅ Crear rol
+        public async Task<RolDTO> CreateRoleAsync(RolDTO rolDto)
         {
+            var rol = new Rol
+            {
+                Nombre = rolDto.Nombre,
+                CreacionFecha = rolDto.CreacionFecha,
+                CreacionUsuario = rolDto.CreacionUsuario,
+                ModificacionFecha = rolDto.ModificacionFecha,
+                ModificacionUsuario = rolDto.ModificacionUsuario
+            };
+
             _context.Roles.Add(rol);
             await _context.SaveChangesAsync();
-            return rol;
+
+            rolDto.IdRol = rol.IdRol;
+            return rolDto;
         }
 
-        public async Task<Rol> UpdateRoleAsync(Rol rol)
-        {
-            _context.Roles.Update(rol);
-            await _context.SaveChangesAsync();
-            return rol;
-        }
-
-        public async Task DeleteRoleAsync(int id)
+        // ✅ Actualizar rol
+        public async Task<bool> UpdateRoleAsync(int id, RolDTO rolDto)
         {
             var rol = await _context.Roles.FindAsync(id);
-            if (rol != null)
-            {
-                _context.Roles.Remove(rol);
-                await _context.SaveChangesAsync();
-            }
+            if (rol == null) return false;
+
+            rol.Nombre = rolDto.Nombre;
+            rol.ModificacionFecha = rolDto.ModificacionFecha;
+            rol.ModificacionUsuario = rolDto.ModificacionUsuario;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // ✅ Eliminar rol
+        public async Task<bool> DeleteRoleAsync(int id)
+        {
+            var rol = await _context.Roles.FindAsync(id);
+            if (rol == null) return false;
+
+            _context.Roles.Remove(rol);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

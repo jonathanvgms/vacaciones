@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using VacacionesApi.Models;
 using VacacionesApi.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -17,59 +16,52 @@ namespace VacacionesApi.Controllers
             _rolService = rolService;
         }
 
+        // GET: api/rol
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Rol>>> GetRoles()
+        public async Task<ActionResult<IEnumerable<RolDTO>>> GetRoles()
         {
             var roles = await _rolService.GetAllRolesAsync();
             return Ok(roles);
         }
 
+        // GET: api/rol/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Rol>> GetRol(int id)
+        public async Task<ActionResult<RolDTO>> GetRol(int id)
         {
             var rol = await _rolService.GetRoleByIdAsync(id);
             if (rol == null)
-            {
                 return NotFound();
-            }
+
             return Ok(rol);
         }
 
+        // POST: api/rol
         [HttpPost]
-        public async Task<ActionResult<Rol>> CreateRol(Rol rol)
+        public async Task<ActionResult<RolDTO>> CreateRol([FromBody] RolDTO rolDto)
         {
-            var createdRol = await _rolService.CreateRoleAsync(rol);
+            var createdRol = await _rolService.CreateRoleAsync(rolDto);
             return CreatedAtAction(nameof(GetRol), new { id = createdRol.IdRol }, createdRol);
         }
 
+        // PUT: api/rol/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRol(int id, Rol rol)
+        public async Task<IActionResult> UpdateRol(int id, [FromBody] RolDTO rolDto)
         {
-            if (id != rol.IdRol)
-            {
-                return BadRequest();
-            }
-
-            var existingRol = await _rolService.GetRoleByIdAsync(id);
-            if (existingRol == null)
-            {
+            var updated = await _rolService.UpdateRoleAsync(id, rolDto);
+            if (!updated)
                 return NotFound();
-            }
 
-            await _rolService.UpdateRoleAsync(rol);
             return NoContent();
         }
 
+        // DELETE: api/rol/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRol(int id)
         {
-            var existingRol = await _rolService.GetRoleByIdAsync(id);
-            if (existingRol == null)
-            {
+            var deleted = await _rolService.DeleteRoleAsync(id);
+            if (!deleted)
                 return NotFound();
-            }
 
-            await _rolService.DeleteRoleAsync(id);
             return NoContent();
         }
     }
