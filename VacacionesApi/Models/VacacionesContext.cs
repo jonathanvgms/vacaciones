@@ -18,7 +18,7 @@ public partial class VacacionesContext : DbContext
 
     public virtual DbSet<AmbitoFeriado> AmbitoFeriados { get; set; }
 
-    public virtual DbSet<Aprobacion> Aprobacions { get; set; }
+    public virtual DbSet<Aprobacion> Aprobaciones { get; set; }
 
     public virtual DbSet<Departamento> Departamentos { get; set; }
 
@@ -28,15 +28,13 @@ public partial class VacacionesContext : DbContext
 
     public virtual DbSet<Feriado> Feriados { get; set; }
 
-    public virtual DbSet<Notificacion> Notificacions { get; set; }
+    public virtual DbSet<Notificacion> Notificaciones { get; set; }
 
-    public virtual DbSet<Rol> Rols { get; set; }
+    public virtual DbSet<Rol> Roles { get; set; }
 
-    public virtual DbSet<SaldoVacacione> SaldoVacaciones { get; set; }
+    public virtual DbSet<SaldoVacacione> SaldosVacaciones { get; set; }
 
-    public virtual DbSet<SaldoVacacionesCopy1> SaldoVacacionesCopy1s { get; set; }
-
-    public virtual DbSet<Solicitud> Solicituds { get; set; }
+    public virtual DbSet<Solicitud> Solicitudes { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 

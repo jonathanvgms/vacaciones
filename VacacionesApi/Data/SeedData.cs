@@ -8,8 +8,8 @@ namespace VacacionesApi.Data
     {
         public static void Initialize(IServiceProvider serviceProvider)
         {
-            using (var context = new ApplicationDbContext(
-                serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>()))
+            using (var context = new VacacionesContext(
+                serviceProvider.GetRequiredService<DbContextOptions<VacacionesContext>>()))
             {
                 // Check if the database has been seeded
                 if (context.Departamentos.Any())

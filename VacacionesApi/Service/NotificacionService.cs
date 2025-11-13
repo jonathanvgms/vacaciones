@@ -8,9 +8,9 @@ namespace VacacionesApi.Services
 {
     public class NotificacionService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly VacacionesContext _context;
 
-        public NotificacionService(ApplicationDbContext context)
+        public NotificacionService(VacacionesContext context)
         {
             _context = context;
         }

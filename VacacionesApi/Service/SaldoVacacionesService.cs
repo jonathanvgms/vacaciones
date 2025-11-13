@@ -8,9 +8,9 @@ namespace VacacionesApi.Services
 {
     public class SaldoVacacionesService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly VacacionesContext _context;
 
-        public SaldoVacacionesService(ApplicationDbContext context)
+        public SaldoVacacionesService(VacacionesContext context)
         {
             _context = context;
         }

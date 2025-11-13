@@ -8,9 +8,9 @@ namespace VacacionesApi.Services
 {
     public class RolService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly VacacionesContext _context;
 
-        public RolService(ApplicationDbContext context)
+        public RolService(VacacionesContext context)
         {
             _context = context;
         }

@@ -4,9 +4,10 @@ using Microsoft.Extensions.Hosting;
 using VacacionesApi.Services;
 using Microsoft.EntityFrameworkCore;
 using VacacionesApi.Data;
+using VacacionesApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContext<VacacionesContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
         new MySqlServerVersion(new Version(8, 0, 23))
