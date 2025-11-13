@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using VacacionesApi.Models;
 using VacacionesApi.Services;
+using VacacionesApi.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,66 +10,59 @@ namespace VacacionesApi.Controllers
     [ApiController]
     public class SolicitudController : ControllerBase
     {
-        private readonly SolicitudService _solicitudService;
+        private readonly SolicitudService _service;
 
-        public SolicitudController(SolicitudService solicitudService)
+        public SolicitudController(SolicitudService service)
         {
-            _solicitudService = solicitudService;
+            _service = service;
         }
 
-        // GET: api/solicitud
+        // ✅ GET: api/Solicitud
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Solicitud>>> GetSolicitudes()
+        public async Task<ActionResult<IEnumerable<SolicitudDto>>> GetAll()
         {
-            var solicitudes = await _solicitudService.GetAllSolicitudesAsync();
+            var solicitudes = await _service.GetAllAsync();
             return Ok(solicitudes);
         }
 
-        // GET: api/solicitud/5
+        // ✅ GET: api/Solicitud/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Solicitud>> GetSolicitud(int id)
+        public async Task<ActionResult<SolicitudDto>> GetById(int id)
         {
-            var solicitud = await _solicitudService.GetSolicitudByIdAsync(id);
+            var solicitud = await _service.GetByIdAsync(id);
             if (solicitud == null)
-            {
                 return NotFound();
-            }
+
             return Ok(solicitud);
         }
 
-        // POST: api/solicitud
+        // ✅ POST: api/Solicitud
         [HttpPost]
-        public async Task<ActionResult<Solicitud>> CreateSolicitud([FromBody] SolicitudCreateUpdateDto solicitudDto)    
+        public async Task<ActionResult<Solicitud>> Create(SolicitudCreateDto dto)
         {
-        var nuevaSolicitud = await _solicitudService.CreateSolicitudAsync(solicitudDto);
-        return CreatedAtAction(nameof(GetSolicitud), new { id = nuevaSolicitud.IdSolicitud }, nuevaSolicitud);
+            var created = await _service.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = created.IdSolicitud }, created);
         }
 
-        // PUT: api/solicitud/5
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateSolicitud(int id, [FromBody] SolicitudCreateUpdateDto solicitudDto)
-    {
-        var existente = await _solicitudService.GetSolicitudByIdAsync(id);
-        if (existente == null)
+        // ✅ PUT: api/Solicitud/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, SolicitudUpdateDto dto)
         {
-        return NotFound();
-        }
-
-        await _solicitudService.UpdateSolicitudAsync(id, solicitudDto);
-        return NoContent();
-    }
-
-        // DELETE: api/solicitud/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSolicitud(int id)
-        {
-            var solicitud = await _solicitudService.GetSolicitudByIdAsync(id);
-            if (solicitud == null)
-            {
+            var updated = await _service.UpdateAsync(id, dto);
+            if (!updated)
                 return NotFound();
-            }
 
-            await _solicitudService.DeleteSolicitudAsync(id);
+            return NoContent();
+        }
+
+        // ✅ DELETE: api/Solicitud/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var deleted = await _service.DeleteAsync(id);
+            if (!deleted)
+                return NotFound();
+
             return NoContent();
         }
     }

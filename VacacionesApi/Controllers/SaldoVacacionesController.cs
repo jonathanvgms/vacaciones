@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using VacacionesApi.Models;
 using VacacionesApi.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,66 +9,62 @@ namespace VacacionesApi.Controllers
     [ApiController]
     public class SaldoVacacionesController : ControllerBase
     {
-        private readonly SaldoVacacionesService _saldoVacacionesService;
+        private readonly SaldoVacacionesService _service;
 
-        public SaldoVacacionesController(SaldoVacacionesService saldoVacacionesService)
+        public SaldoVacacionesController(SaldoVacacionesService service)
         {
-            _saldoVacacionesService = saldoVacacionesService;
+            _service = service;
         }
 
+        // ✅ GET: api/SaldoVacaciones
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SaldoVacacione>>> GetAll()
+        public async Task<ActionResult<IEnumerable<SaldoVacacionesDTO>>> GetAll()
         {
-            var saldos = await _saldoVacacionesService.GetAllAsync();
+            var saldos = await _service.GetAllAsync();
             return Ok(saldos);
         }
 
+        // ✅ GET: api/SaldoVacaciones/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<SaldoVacacione>> GetById(int id)
+        public async Task<ActionResult<SaldoVacacionesDTO>> GetById(int id)
         {
-            var saldo = await _saldoVacacionesService.GetByIdAsync(id);
+            var saldo = await _service.GetByIdAsync(id);
             if (saldo == null)
-            {
                 return NotFound();
-            }
+
             return Ok(saldo);
         }
 
+        // ✅ POST: api/SaldoVacaciones
         [HttpPost]
-        public async Task<ActionResult<SaldoVacacione>> Create(SaldoVacacione saldoVacaciones)
+        public async Task<ActionResult<SaldoVacacionesDTO>> Create(SaldoVacacionesCreateDTO dto)
         {
-            var createdSaldo = await _saldoVacacionesService.CreateAsync(saldoVacaciones);
-            return CreatedAtAction(nameof(GetById), new { id = createdSaldo }, createdSaldo);
+            var created = await _service.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = created.IdSaldo }, created);
         }
 
+        // ✅ PUT: api/SaldoVacaciones/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, SaldoVacacione saldoVacaciones)
+        public async Task<IActionResult> Update(int id, SaldoVacacionesUpdateDTO dto)
         {
-            if (id != saldoVacaciones.IdSaldo)
-            {
-                return BadRequest();
-            }
+            if (id != dto.IdSaldo)
+                return BadRequest("El ID no coincide.");
 
-            var existingSaldo = await _saldoVacacionesService.GetByIdAsync(id);
-            if (existingSaldo == null)
-            {
+            var updated = await _service.UpdateAsync(id, dto);
+            if (!updated)
                 return NotFound();
-            }
 
-            await _saldoVacacionesService.UpdateAsync(saldoVacaciones);
             return NoContent();
         }
 
+        // ✅ DELETE: api/SaldoVacaciones/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existingSaldo = await _saldoVacacionesService.GetByIdAsync(id);
-            if (existingSaldo == null)
-            {
+            var deleted = await _service.DeleteAsync(id);
+            if (!deleted)
                 return NotFound();
-            }
 
-            await _saldoVacacionesService.DeleteAsync(id);
             return NoContent();
         }
     }

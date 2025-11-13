@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using VacacionesApi.Models;
+
 using VacacionesApi.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -18,58 +18,47 @@ namespace VacacionesApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Notificacion>>> GetNotificaciones()
+        public async Task<ActionResult<IEnumerable<NotificacionDTO>>> GetNotificaciones()
         {
             var notificaciones = await _notificacionService.GetAllNotificacionesAsync();
             return Ok(notificaciones);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Notificacion>> GetNotificacion(int id)
+        public async Task<ActionResult<NotificacionDTO>> GetNotificacion(int id)
         {
             var notificacion = await _notificacionService.GetNotificacionByIdAsync(id);
             if (notificacion == null)
-            {
-                return NotFound();
-            }
+            return NotFound();
+
             return Ok(notificacion);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Notificacion>> CreateNotificacion(Notificacion notificacion)
+        public async Task<ActionResult<NotificacionDTO>> CreateNotificacion(NotificacionDTO notificacionDto)
         {
-            var createdNotificacion = await _notificacionService.CreateNotificacionAsync(notificacion);
-            return CreatedAtAction(nameof(GetNotificacion), new { id = createdNotificacion }, createdNotificacion);
+            var created = await _notificacionService.CreateNotificacionAsync(notificacionDto);
+            return CreatedAtAction(nameof(GetNotificacion), new { id = created.IdNotificacion }, created);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateNotificacion(int id, Notificacion notificacion)
+        public async Task<IActionResult> UpdateNotificacion(int id, NotificacionDTO notificacionDto)
         {
-            if (id != notificacion.IdNotificacion)
-            {
+            if (id != notificacionDto.IdNotificacion)
                 return BadRequest();
-            }
+            var updated = await _notificacionService.UpdateNotificacionAsync(id, notificacionDto);
+            if (!updated)
+            return NotFound();
 
-            var existingNotificacion = await _notificacionService.GetNotificacionByIdAsync(id);
-            if (existingNotificacion == null)
-            {
-                return NotFound();
-            }
-
-            await _notificacionService.UpdateNotificacionAsync(notificacion);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNotificacion(int id)
         {
-            var existingNotificacion = await _notificacionService.GetNotificacionByIdAsync(id);
-            if (existingNotificacion == null)
-            {
-                return NotFound();
-            }
-
-            await _notificacionService.DeleteNotificacionAsync(id);
+            var deleted = await _notificacionService.DeleteNotificacionAsync(id);
+            if (!deleted)
+            return NotFound();
             return NoContent();
         }
     }

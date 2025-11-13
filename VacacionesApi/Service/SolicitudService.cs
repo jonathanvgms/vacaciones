@@ -17,34 +17,35 @@ namespace VacacionesApi.Services
             _context = context;
         }
 
-        // Obtener todas las solicitudes
-        public async Task<List<SolicitudDto>> GetAllSolicitudesAsync()
-    {
-        return await _context.Solicitudes
-        .Include(s => s.IdEmpleadoNavigation)
-            .ThenInclude(e => e.IdUsuarioNavigation)
-        .Include(s => s.IdEstadoNavigation)
-        .Select(s => new SolicitudDto
+        // ✅ Obtener todas las solicitudes
+        public async Task<List<SolicitudDto>> GetAllAsync()
         {
-            IdSolicitud = s.IdSolicitud,
-            IdEmpleado = s.IdEmpleado,
-            NombreEmpleado = s.IdEmpleadoNavigation.IdUsuarioNavigation.Nombre,
-            FechaInicio = s.FechaInicio,
-            FechaFin = s.FechaFin,
-            DiasSolicitados = s.DiasSolicitados,
-            Estado = s.IdEstadoNavigation.Nombre,
-            Motivo = s.Motivo,
-            FechaCreacion = s.FechaCreacion,
-            CreacionUsuario = s.CreacionUsuario
-        })
-        .ToListAsync();
-    }
+            return await _context.Solicitudes
+                .Include(s => s.IdEmpleadoNavigation)
+                    .ThenInclude(e => e.IdUsuarioNavigation)
+                .Include(s => s.IdEstadoNavigation)
+                .Select(s => new SolicitudDto
+                {
+                    IdSolicitud = s.IdSolicitud,
+                    IdEmpleado = s.IdEmpleado,
+                    NombreEmpleado = s.IdEmpleadoNavigation.IdUsuarioNavigation.Nombre,
+                    FechaInicio = s.FechaInicio,
+                    FechaFin = s.FechaFin,
+                    DiasSolicitados = s.DiasSolicitados,
+                    Estado = s.IdEstadoNavigation.Nombre,
+                    Motivo = s.Motivo,
+                    FechaCreacion = s.FechaCreacion,
+                    CreacionUsuario = s.CreacionUsuario
+                })
+                .ToListAsync();
+        }
 
-        // Obtener por ID
-        public async Task<SolicitudDto?> GetSolicitudByIdAsync(int id)
+        // ✅ Obtener una solicitud por ID
+        public async Task<SolicitudDto?> GetByIdAsync(int id)
         {
             var s = await _context.Solicitudes
                 .Include(s => s.IdEmpleadoNavigation)
+                    .ThenInclude(e => e.IdUsuarioNavigation)
                 .Include(s => s.IdEstadoNavigation)
                 .FirstOrDefaultAsync(s => s.IdSolicitud == id);
 
@@ -65,8 +66,8 @@ namespace VacacionesApi.Services
             };
         }
 
-        // Crear nueva solicitud
-        public async Task<Solicitud> CreateSolicitudAsync(SolicitudCreateUpdateDto dto)
+        // ✅ Crear una nueva solicitud
+        public async Task<Solicitud> CreateAsync(SolicitudCreateDto dto)
         {
             var solicitud = new Solicitud
             {
@@ -85,37 +86,31 @@ namespace VacacionesApi.Services
             return solicitud;
         }
 
-        // Actualizar solicitud
-        public async Task<Solicitud?> UpdateSolicitudAsync(int id, SolicitudCreateUpdateDto dto)
+        // ✅ Actualizar solicitud existente
+        public async Task<bool> UpdateAsync(int id, SolicitudUpdateDto dto)
         {
             var solicitud = await _context.Solicitudes.FindAsync(id);
-            if (solicitud == null) return null;
+            if (solicitud == null) return false;
 
-            solicitud.IdEmpleado = dto.IdEmpleado;
             solicitud.FechaInicio = dto.FechaInicio;
             solicitud.FechaFin = dto.FechaFin;
             solicitud.DiasSolicitados = dto.DiasSolicitados;
             solicitud.IdEstado = dto.IdEstado;
             solicitud.Motivo = dto.Motivo;
-            solicitud.CreacionUsuario = dto.CreacionUsuario;
 
             await _context.SaveChangesAsync();
-            return solicitud;
+            return true;
         }
 
-        public async Task DeleteSolicitudAsync(int id)
+        // ✅ Eliminar solicitud
+        public async Task<bool> DeleteAsync(int id)
         {
             var solicitud = await _context.Solicitudes.FindAsync(id);
-            if (solicitud != null)
-            {
-                _context.Solicitudes.Remove(solicitud);
-                await _context.SaveChangesAsync();
-            }
-        }
+            if (solicitud == null) return false;
 
-        internal async Task CreateSolicitudAsync(Solicitud solicitud)
-        {
-            throw new NotImplementedException();
+            _context.Solicitudes.Remove(solicitud);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

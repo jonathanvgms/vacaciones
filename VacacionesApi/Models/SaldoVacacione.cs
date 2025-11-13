@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace VacacionesApi.Models;
 
@@ -25,5 +26,5 @@ public partial class SaldoVacacione
 
     public string? ModificacionUsuario { get; set; }
 
-    public virtual Empleado IdEmpleadoNavigation { get; set; } = null!;
+
 }

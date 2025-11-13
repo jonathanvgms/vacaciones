@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using VacacionesApi.Models;
 using VacacionesApi.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -17,59 +16,52 @@ namespace VacacionesApi.Controllers
             _aprobacionService = aprobacionService;
         }
 
+        // GET: api/aprobacion
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Aprobacion>>> GetAll()
+        public async Task<ActionResult<IEnumerable<AprobacionDTO>>> GetAll()
         {
             var aprobaciones = await _aprobacionService.GetAllAprobacionesAsync();
             return Ok(aprobaciones);
         }
 
+        // GET: api/aprobacion/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Aprobacion>> GetById(int id)
+        public async Task<ActionResult<AprobacionDTO>> GetById(int id)
         {
             var aprobacion = await _aprobacionService.GetAprobacionByIdAsync(id);
             if (aprobacion == null)
-            {
                 return NotFound();
-            }
+
             return Ok(aprobacion);
         }
 
+        // POST: api/aprobacion
         [HttpPost]
-        public async Task<ActionResult<Aprobacion>> Create(Aprobacion aprobacion)
+        public async Task<ActionResult<AprobacionDTO>> Create([FromBody] AprobacionDTO dto)
         {
-            var createdAprobacion = await _aprobacionService.CreateAprobacionAsync(aprobacion);
-            return CreatedAtAction(nameof(GetById), new { id = createdAprobacion }, createdAprobacion);
+            var created = await _aprobacionService.CreateAprobacionAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = created.IdAprobacion }, created);
         }
 
+        // PUT: api/aprobacion/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Aprobacion aprobacion)
+        public async Task<IActionResult> Update(int id, [FromBody] AprobacionDTO dto)
         {
-            if (id != aprobacion.IdAprobacion)
-            {
-                return BadRequest();
-            }
-
-            var existingAprobacion = await _aprobacionService.GetAprobacionByIdAsync(id);
-            if (existingAprobacion == null)
-            {
+            var updated = await _aprobacionService.UpdateAprobacionAsync(id, dto);
+            if (!updated)
                 return NotFound();
-            }
 
-            await _aprobacionService.UpdateAprobacionAsync(aprobacion);
             return NoContent();
         }
 
+        // DELETE: api/aprobacion/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var aprobacion = await _aprobacionService.GetAprobacionByIdAsync(id);
-            if (aprobacion == null)
-            {
+            var deleted = await _aprobacionService.DeleteAprobacionAsync(id);
+            if (!deleted)
                 return NotFound();
-            }
 
-            await _aprobacionService.DeleteAprobacionAsync(id);
             return NoContent();
         }
     }

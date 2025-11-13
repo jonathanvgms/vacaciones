@@ -346,10 +346,6 @@ public partial class VacacionesContext : DbContext
                 .HasMaxLength(120)
                 .HasColumnName("modificacion_usuario");
 
-            entity.HasOne(d => d.IdEmpleadoNavigation).WithMany(p => p.SaldoVacaciones)
-                .HasForeignKey(d => d.IdEmpleado)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("saldo_vacaciones_ibfk_1");
         });
 
         modelBuilder.Entity<SaldoVacacionesCopy1>(entity =>
