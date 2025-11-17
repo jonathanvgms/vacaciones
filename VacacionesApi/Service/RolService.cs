@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using VacacionesApi.Models;
-using VacacionesApi.Data;
 using Microsoft.EntityFrameworkCore;
-
 namespace VacacionesApi.Services
 {
     public class RolService

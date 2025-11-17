@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using VacacionesApi.Services;
 using Microsoft.EntityFrameworkCore;
-using VacacionesApi.Data;
 using VacacionesApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
