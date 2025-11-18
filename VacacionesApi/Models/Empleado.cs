@@ -31,7 +31,5 @@ public partial class Empleado
 
     public virtual ICollection<SaldoVacacione> SaldoVacaciones { get; set; } = new List<SaldoVacacione>();
 
-    public virtual ICollection<SaldoVacacionesCopy1> SaldoVacacionesCopy1s { get; set; } = new List<SaldoVacacionesCopy1>();
-
     public virtual ICollection<Solicitud> Solicituds { get; set; } = new List<Solicitud>();
 }
