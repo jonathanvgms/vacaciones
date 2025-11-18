@@ -261,26 +261,6 @@ DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
 
 
--- -----------------------------------------------------
--- Table `vacaciones_db`.`saldo_vacaciones_copy1`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `vacaciones_db`.`saldo_vacaciones_copy1` (
-  `id_saldo` INT NOT NULL AUTO_INCREMENT,
-  `id_empleado` INT NOT NULL,
-  `anio` YEAR NOT NULL,
-  `dias_asignados` DECIMAL(5,2) NOT NULL DEFAULT '0.00',
-  `dias_tomados` DECIMAL(5,2) NOT NULL DEFAULT '0.00',
-  `dias_pendientes` DECIMAL(5,2) NOT NULL DEFAULT '0.00',
-  PRIMARY KEY (`id_saldo`),
-  UNIQUE INDEX `id_empleado` (`id_empleado` ASC, `anio` ASC) VISIBLE,
-  CONSTRAINT `saldo_vacaciones_ibfk_10`
-    FOREIGN KEY (`id_empleado`)
-    REFERENCES `vacaciones_db`.`empleado` (`id_empleado`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
-
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
