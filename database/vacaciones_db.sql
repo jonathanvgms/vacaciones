@@ -167,7 +167,7 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- Table `vacaciones_db`.`aprobacion`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `vacaciones_db`.`aprobacion` (
-  `id_aprobacion` INT NOT NULL AUTO_INCREMENT,
+  `id_aprobac public string? CreacionUsuario { get; set; }ion` INT NOT NULL AUTO_INCREMENT,
   `id_solicitud` INT NOT NULL,
   `id_aprobador` INT NOT NULL,
   `comentario` VARCHAR(500) NULL DEFAULT NULL,

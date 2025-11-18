@@ -67,7 +67,7 @@ namespace VacacionesApi.Services
             var usuario = new Usuario
             {
                 Email = dto.Email,
-                PasswordHash = dto.PasswordHash,
+                PasswordHash = dto.Password,
                 Nombre = dto.Nombre,
                 Apellido = dto.Apellido,
                 IdRol = dto.IdRol,

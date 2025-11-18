@@ -77,7 +77,6 @@ namespace VacacionesApi.Services
                 IdEstado = dto.IdEstado,
                 Motivo = dto.Motivo,
                 FechaCreacion = DateTime.Now,
-                CreacionUsuario = dto.CreacionUsuario
             };
 
             _context.Solicitudes.Add(solicitud);
