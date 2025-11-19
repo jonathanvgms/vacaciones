@@ -16,19 +16,17 @@ namespace VacacionesApi.Services
             _context = context;
         }
 
-        // ✅ Obtener todos los usuarios
-        public async Task<List<UsuarioDTO>> GetAllUsuariosAsync()
+        // GET ALL
+        public async Task<IEnumerable<UsuarioGetDTO>> GetAllAsync()
         {
             return await _context.Usuarios
-                .Include(u => u.IdRolNavigation)
-                .Select(u => new UsuarioDTO
+                .Select(u => new UsuarioGetDTO
                 {
                     IdUsuario = u.IdUsuario,
                     Email = u.Email,
                     Nombre = u.Nombre,
                     Apellido = u.Apellido,
                     IdRol = u.IdRol,
-                    RolNombre = u.IdRolNavigation.Nombre, // si existe en el modelo Rol
                     CreacionFecha = u.CreacionFecha,
                     CreacionUsuario = u.CreacionUsuario,
                     ModificacionFecha = u.ModificacionFecha,
@@ -37,23 +35,19 @@ namespace VacacionesApi.Services
                 .ToListAsync();
         }
 
-        // ✅ Obtener usuario por ID
-        public async Task<UsuarioDTO?> GetUsuarioByIdAsync(int id)
+        // GET BY ID
+        public async Task<UsuarioGetDTO?> GetByIdAsync(int id)
         {
-            var u = await _context.Usuarios
-                .Include(u => u.IdRolNavigation)
-                .FirstOrDefaultAsync(u => u.IdUsuario == id);
-
+            var u = await _context.Usuarios.FindAsync(id);
             if (u == null) return null;
 
-            return new UsuarioDTO
+            return new UsuarioGetDTO
             {
                 IdUsuario = u.IdUsuario,
                 Email = u.Email,
                 Nombre = u.Nombre,
                 Apellido = u.Apellido,
                 IdRol = u.IdRol,
-                RolNombre = u.IdRolNavigation.Nombre,
                 CreacionFecha = u.CreacionFecha,
                 CreacionUsuario = u.CreacionUsuario,
                 ModificacionFecha = u.ModificacionFecha,
@@ -61,49 +55,59 @@ namespace VacacionesApi.Services
             };
         }
 
-        // ✅ Crear usuario
-        public async Task<Usuario> CreateUsuarioAsync(UsuarioCreateDTO dto)
+        // CREATE
+        public async Task<UsuarioGetDTO> CreateAsync(UsuarioCreateDTO dto)
         {
-            var usuario = new Usuario
+            var entity = new Usuario
             {
                 Email = dto.Email,
-                PasswordHash = dto.Password,
+                Password = dto.Password,
                 Nombre = dto.Nombre,
                 Apellido = dto.Apellido,
                 IdRol = dto.IdRol,
                 CreacionFecha = DateTime.Now,
-                CreacionUsuario = dto.CreacionUsuario
+                CreacionUsuario = "sistema"
             };
 
-            _context.Usuarios.Add(usuario);
+            _context.Usuarios.Add(entity);
             await _context.SaveChangesAsync();
-            return usuario;
+
+            return new UsuarioGetDTO
+            {
+                IdUsuario = entity.IdUsuario,
+                Email = entity.Email,
+                Nombre = entity.Nombre,
+                Apellido = entity.Apellido,
+                IdRol = entity.IdRol,
+                CreacionFecha = entity.CreacionFecha,
+                CreacionUsuario = entity.CreacionUsuario
+            };
         }
 
-        // ✅ Actualizar usuario
-        public async Task<Usuario?> UpdateUsuarioAsync(UsuarioUpdateDTO dto)
+        // UPDATE
+        public async Task<bool> UpdateAsync(int id, UsuarioUpdateDTO dto)
         {
-            var usuario = await _context.Usuarios.FindAsync(dto.IdUsuario);
-            if (usuario == null) return null;
+            var u = await _context.Usuarios.FindAsync(id);
+            if (u == null) return false;
 
-            usuario.Email = dto.Email;
-            usuario.Nombre = dto.Nombre;
-            usuario.Apellido = dto.Apellido;
-            usuario.IdRol = dto.IdRol;
-            usuario.ModificacionFecha = DateTime.Now;
-            usuario.ModificacionUsuario = dto.ModificacionUsuario;
+            u.Email = dto.Email;
+            u.Nombre = dto.Nombre;
+            u.Apellido = dto.Apellido;
+            u.IdRol = dto.IdRol;
+            u.ModificacionFecha = DateTime.Now;
+            u.ModificacionUsuario = dto.ModificacionUsuario;
 
             await _context.SaveChangesAsync();
-            return usuario;
+            return true;
         }
 
-        // ✅ Eliminar usuario
-        public async Task<bool> DeleteUsuarioAsync(int id)
+        // DELETE
+        public async Task<bool> DeleteAsync(int id)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario == null) return false;
+            var u = await _context.Usuarios.FindAsync(id);
+            if (u == null) return false;
 
-            _context.Usuarios.Remove(usuario);
+            _context.Usuarios.Remove(u);
             await _context.SaveChangesAsync();
             return true;
         }

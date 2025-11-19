@@ -7,62 +7,55 @@ namespace VacacionesApi.Controllers
     [ApiController]
     public class DepartamentoController : ControllerBase
     {
-        private readonly DepartamentoService _departamentoService;
+        private readonly DepartamentoService _service;
 
-        public DepartamentoController(DepartamentoService departamentoService)
+        public DepartamentoController(DepartamentoService service)
         {
-            _departamentoService = departamentoService;
+            _service = service;
         }
 
-        // ✅ GET: api/Departamento
+        // GET ALL
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DepartamentoDTOs>>> GetDepartamentos()
+        public async Task<IActionResult> GetDepartamentos()
         {
-            var departamentos = await _departamentoService.GetAllDepartamentosAsync();
-            return Ok(departamentos);
+            var list = await _service.GetAllAsync();
+            return Ok(list);
         }
 
-        // ✅ GET: api/Departamento/{id}
+        // GET BY ID
         [HttpGet("{id}")]
-        public async Task<ActionResult<DepartamentoDTOs>> GetDepartamento(int id)
+        public async Task<IActionResult> GetDepartamento(int id)
         {
-            var departamento = await _departamentoService.GetDepartamentoByIdAsync(id);
-            if (departamento == null)
-                return NotFound();
-
-            return Ok(departamento);
+            var d = await _service.GetByIdAsync(id);
+            if (d == null) return NotFound();
+            return Ok(d);
         }
 
-        // ✅ POST: api/Departamento
+        // CREATE (recibe DepartamentoCreateDTO)
         [HttpPost]
-        public async Task<ActionResult<DepartamentoDTOs>> CreateDepartamento([FromBody] DepartamentoCreateDTO dto)
+        public async Task<IActionResult> CreateDepartamento([FromBody] DepartamentoCreateDTO dto)
         {
-            var nuevoDepartamento = await _departamentoService.CreateDepartamentoAsync(dto);
-            return CreatedAtAction(nameof(GetDepartamento), new { id = nuevoDepartamento.IdDepartamento }, nuevoDepartamento);
+            if (dto == null) return BadRequest("Datos inválidos.");
+
+            var creado = await _service.CreateAsync(dto);
+            return Ok(creado);
         }
 
-        // ✅ PUT: api/Departamento/{id}
+        // UPDATE (recibe DepartamentoUpdateDTO)
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateDepartamento(int id, [FromBody] DepartamentoUpdateDTO dto)
         {
-            if (id != dto.IdDepartamento)
-                return BadRequest("El ID de la ruta no coincide con el del cuerpo.");
-
-            var actualizado = await _departamentoService.UpdateDepartamentoAsync(dto);
-            if (!actualizado)
-                return NotFound();
-
+            var ok = await _service.UpdateAsync(id, dto);
+            if (!ok) return NotFound();
             return NoContent();
         }
 
-        // ✅ DELETE: api/Departamento/{id}
+        // DELETE
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDepartamento(int id)
         {
-            var eliminado = await _departamentoService.DeleteDepartamentoAsync(id);
-            if (!eliminado)
-                return NotFound();
-
+            var ok = await _service.DeleteAsync(id);
+            if (!ok) return NotFound();
             return NoContent();
         }
     }

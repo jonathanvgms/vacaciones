@@ -24,6 +24,7 @@ builder.Services.AddScoped<RolService>();
 builder.Services.AddScoped<SaldoVacacionesService>();
 builder.Services.AddScoped<SolicitudService>();
 builder.Services.AddScoped<UsuarioService>();
+builder.Services.AddScoped<EstadoSolicitudService>();
 
 
 builder.Services.AddControllers();

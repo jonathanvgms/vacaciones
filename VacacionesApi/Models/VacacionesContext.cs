@@ -418,7 +418,7 @@ public partial class VacacionesContext : DbContext
             entity.Property(e => e.Nombre)
                 .HasMaxLength(80)
                 .HasColumnName("nombre");
-            entity.Property(e => e.PasswordHash)
+            entity.Property(e => e.Password)
                 .HasMaxLength(255)
                 .HasColumnName("password_hash");
 

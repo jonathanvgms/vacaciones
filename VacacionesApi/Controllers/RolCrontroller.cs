@@ -9,58 +9,65 @@ namespace VacacionesApi.Controllers
     [ApiController]
     public class RolController : ControllerBase
     {
-        private readonly RolService _rolService;
+        private readonly RolService _service;
 
-        public RolController(RolService rolService)
+        public RolController(RolService service)
         {
-            _rolService = rolService;
+            _service = service;
         }
 
-        // GET: api/rol
+        // ============================================
+        // GET ALL
+        // ============================================
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RolDTO>>> GetRoles()
+        public async Task<ActionResult<IEnumerable<RolGetDTO>>> GetRoles()
         {
-            var roles = await _rolService.GetAllRolesAsync();
-            return Ok(roles);
+            return Ok(await _service.GetAllRolesAsync());
         }
 
-        // GET: api/rol/5
+        // ============================================
+        // GET BY ID
+        // ============================================
         [HttpGet("{id}")]
-        public async Task<ActionResult<RolDTO>> GetRol(int id)
+        public async Task<ActionResult<RolInfoDTO>> GetRol(int id)
         {
-            var rol = await _rolService.GetRoleByIdAsync(id);
-            if (rol == null)
-                return NotFound();
+            var rol = await _service.GetRoleByIdAsync(id);
+            if (rol == null) return NotFound();
 
             return Ok(rol);
         }
 
-        // POST: api/rol
-        [HttpPost]
-        public async Task<ActionResult<RolDTO>> CreateRol([FromBody] RolDTO rolDto)
-        {
-            var createdRol = await _rolService.CreateRoleAsync(rolDto);
-            return CreatedAtAction(nameof(GetRol), new { id = createdRol.IdRol }, createdRol);
-        }
+        // ============================================
+        // CREATE
+        // ============================================
+[HttpPost]
+    public async Task<ActionResult<RolGetDTO>> CreateRol([FromBody] RolCreateDTO dto)
+{
+    var created = await _service.CreateRoleAsync(dto);
+    return CreatedAtAction(nameof(GetRol), new { id = created.IdRol }, created);
+}
 
-        // PUT: api/rol/5
+
+        // ============================================
+        // UPDATE
+        // ============================================
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRol(int id, [FromBody] RolDTO rolDto)
+        public async Task<IActionResult> UpdateRol(int id, [FromBody] RolUpdateDTO dto)
         {
-            var updated = await _rolService.UpdateRoleAsync(id, rolDto);
-            if (!updated)
-                return NotFound();
+            var updated = await _service.UpdateRoleAsync(id, dto);
+            if (!updated) return NotFound();
 
             return NoContent();
         }
 
-        // DELETE: api/rol/5
+        // ============================================
+        // DELETE
+        // ============================================
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRol(int id)
         {
-            var deleted = await _rolService.DeleteRoleAsync(id);
-            if (!deleted)
-                return NotFound();
+            var deleted = await _service.DeleteRoleAsync(id);
+            if (!deleted) return NotFound();
 
             return NoContent();
         }

@@ -16,91 +16,115 @@ namespace VacacionesApi.Services
             _context = context;
         }
 
-        // ✅ Obtener todas las solicitudes
-        public async Task<List<SolicitudDto>> GetAllAsync()
+        // ============================
+        // GET ALL
+        // ============================
+        public async Task<IEnumerable<SolicitudGetDTO>> GetAllAsync()
         {
             return await _context.Solicitudes
                 .Include(s => s.IdEmpleadoNavigation)
-                    .ThenInclude(e => e.IdUsuarioNavigation)
                 .Include(s => s.IdEstadoNavigation)
-                .Select(s => new SolicitudDto
+                .Select(s => new SolicitudGetDTO
                 {
                     IdSolicitud = s.IdSolicitud,
-                    IdEmpleado = s.IdEmpleado,
-                    NombreEmpleado = s.IdEmpleadoNavigation.IdUsuarioNavigation.Nombre,
-                    FechaInicio = s.FechaInicio,
-                    FechaFin = s.FechaFin,
-                    DiasSolicitados = s.DiasSolicitados,
+                    Empleado = s.IdEmpleadoNavigation.IdUsuarioNavigation.Nombre + " " +
+                               s.IdEmpleadoNavigation.IdUsuarioNavigation.Apellido,
                     Estado = s.IdEstadoNavigation.Nombre,
-                    Motivo = s.Motivo,
-                    FechaCreacion = s.FechaCreacion,
-                    CreacionUsuario = s.CreacionUsuario
+                    DiasSolicitados = s.DiasSolicitados ?? 0
                 })
                 .ToListAsync();
         }
 
-        // ✅ Obtener una solicitud por ID
-        public async Task<SolicitudDto?> GetByIdAsync(int id)
+        // ============================
+        // GET BY ID
+        // ============================
+        public async Task<SolicitudInfoDTO?> GetByIdAsync(int id)
         {
-            var s = await _context.Solicitudes
-                .Include(s => s.IdEmpleadoNavigation)
-                    .ThenInclude(e => e.IdUsuarioNavigation)
+            return await _context.Solicitudes
+                .Include(s => s.IdEmpleadoNavigation).ThenInclude(e => e.IdUsuarioNavigation)
                 .Include(s => s.IdEstadoNavigation)
-                .FirstOrDefaultAsync(s => s.IdSolicitud == id);
-
-            if (s == null) return null;
-
-            return new SolicitudDto
-            {
-                IdSolicitud = s.IdSolicitud,
-                IdEmpleado = s.IdEmpleado,
-                NombreEmpleado = s.IdEmpleadoNavigation.IdUsuarioNavigation.Nombre,
-                FechaInicio = s.FechaInicio,
-                FechaFin = s.FechaFin,
-                DiasSolicitados = s.DiasSolicitados,
-                Estado = s.IdEstadoNavigation.Nombre,
-                Motivo = s.Motivo,
-                FechaCreacion = s.FechaCreacion,
-                CreacionUsuario = s.CreacionUsuario
-            };
+                .Where(s => s.IdSolicitud == id)
+                .Select(s => new SolicitudInfoDTO
+                {
+                    IdSolicitud = s.IdSolicitud,
+                    IdEmpleado = s.IdEmpleado,
+                    NombreEmpleado = s.IdEmpleadoNavigation.IdUsuarioNavigation.Nombre,
+                    ApellidoEmpleado = s.IdEmpleadoNavigation.IdUsuarioNavigation.Apellido,
+                    FechaInicio = s.FechaInicio,
+                    FechaFin = s.FechaFin,
+                    DiasSolicitados = s.DiasSolicitados ?? 0,
+                    Estado = s.IdEstadoNavigation.Nombre,
+                    Motivo = s.Motivo,
+                    FechaCreacion = s.FechaCreacion
+                })
+                .FirstOrDefaultAsync();
         }
 
-        // ✅ Crear una nueva solicitud
-        public async Task<Solicitud> CreateAsync(SolicitudCreateDto dto)
+        // ============================
+        // CREATE
+        // ============================
+        public async Task<SolicitudInfoDTO> CreateAsync(SolicitudCreateDTO dto)
         {
+            int dias = dto.FechaFin.DayNumber - dto.FechaInicio.DayNumber;
+
             var solicitud = new Solicitud
             {
                 IdEmpleado = dto.IdEmpleado,
                 FechaInicio = dto.FechaInicio,
                 FechaFin = dto.FechaFin,
-                DiasSolicitados = dto.DiasSolicitados,
-                IdEstado = dto.IdEstado,
+                DiasSolicitados = dias,
+                IdEstado = 1, // Estado inicial "Pendiente"
                 Motivo = dto.Motivo,
-                FechaCreacion = DateTime.Now,
+                FechaCreacion = DateTime.UtcNow,
+                CreacionUsuario = "system"
             };
 
             _context.Solicitudes.Add(solicitud);
             await _context.SaveChangesAsync();
-            return solicitud;
+
+            var empleado = await _context.Empleados
+                .Include(e => e.IdUsuarioNavigation)
+                .FirstAsync(e => e.IdEmpleado == dto.IdEmpleado);
+
+            var estado = await _context.EstadoSolicituds
+                .FindAsync(solicitud.IdEstado);
+
+            return new SolicitudInfoDTO
+            {
+                IdSolicitud = solicitud.IdSolicitud,
+                IdEmpleado = solicitud.IdEmpleado,
+                NombreEmpleado = empleado.IdUsuarioNavigation.Nombre,
+                ApellidoEmpleado = empleado.IdUsuarioNavigation.Apellido,
+                FechaInicio = solicitud.FechaInicio,
+                FechaFin = solicitud.FechaFin,
+                DiasSolicitados = solicitud.DiasSolicitados ?? 0,
+                Estado = estado!.Nombre,
+                Motivo = solicitud.Motivo,
+                FechaCreacion = solicitud.FechaCreacion
+            };
         }
 
-        // ✅ Actualizar solicitud existente
-        public async Task<bool> UpdateAsync(int id, SolicitudUpdateDto dto)
+        // ============================
+        // UPDATE
+        // ============================
+        public async Task<bool> UpdateAsync(int id, SolicitudUpdateDTO dto)
         {
             var solicitud = await _context.Solicitudes.FindAsync(id);
             if (solicitud == null) return false;
 
             solicitud.FechaInicio = dto.FechaInicio;
             solicitud.FechaFin = dto.FechaFin;
-            solicitud.DiasSolicitados = dto.DiasSolicitados;
-            solicitud.IdEstado = dto.IdEstado;
+            solicitud.DiasSolicitados = dto.FechaFin.DayNumber - dto.FechaInicio.DayNumber;
             solicitud.Motivo = dto.Motivo;
+            solicitud.IdEstado = dto.IdEstado;
 
             await _context.SaveChangesAsync();
             return true;
         }
 
-        // ✅ Eliminar solicitud
+        // ============================
+        // DELETE
+        // ============================
         public async Task<bool> DeleteAsync(int id)
         {
             var solicitud = await _context.Solicitudes.FindAsync(id);

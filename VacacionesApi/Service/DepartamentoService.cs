@@ -17,31 +17,29 @@ namespace VacacionesApi.Services
             _context = context;
         }
 
-        // ✅ Obtener todos los departamentos
-public async Task<List<DepartamentoDTOs>> GetAllDepartamentosAsync()
-{
-    return await _context.Departamentos
-        .Select(d => new DepartamentoDTOs
+        // GET ALL -> devuelve DTOs
+        public async Task<IEnumerable<DepartamentoGetDTO>> GetAllAsync()
         {
-            IdDepartamento = d.IdDepartamento,
-            Nombre = d.Nombre,
-            CreacionFecha = d.CreacionFecha,
-            CreacionUsuario = d.CreacionUsuario,
-            ModificacionFecha = d.ModificacionFecha,
-            ModificacionUsuario = d.ModificacionUsuario
-        })
-        .ToListAsync();
-}
+            return await _context.Departamentos
+                .Select(d => new DepartamentoGetDTO
+                {
+                    IdDepartamento = d.IdDepartamento,
+                    Nombre = d.Nombre,
+                    CreacionFecha = d.CreacionFecha,
+                    CreacionUsuario = d.CreacionUsuario,
+                    ModificacionFecha = d.ModificacionFecha,
+                    ModificacionUsuario = d.ModificacionUsuario
+                })
+                .ToListAsync();
+        }
 
-
-        // ✅ Obtener uno por ID
-        public async Task<DepartamentoDTOs?> GetDepartamentoByIdAsync(int id)
+        // GET BY ID -> DTO
+        public async Task<DepartamentoGetDTO?> GetByIdAsync(int id)
         {
             var d = await _context.Departamentos.FindAsync(id);
-            if (d == null)
-                return null;
+            if (d == null) return null;
 
-            return new DepartamentoDTOs
+            return new DepartamentoGetDTO
             {
                 IdDepartamento = d.IdDepartamento,
                 Nombre = d.Nombre,
@@ -52,52 +50,47 @@ public async Task<List<DepartamentoDTOs>> GetAllDepartamentosAsync()
             };
         }
 
-        // ✅ Crear
-        public async Task<DepartamentoDTOs> CreateDepartamentoAsync(DepartamentoCreateDTO dto)
+        // CREATE (recibe DTO de creación)
+        public async Task<DepartamentoGetDTO> CreateAsync(DepartamentoCreateDTO dto)
         {
-            var nuevo = new Departamento
+            var entity = new Departamento
             {
                 Nombre = dto.Nombre,
-                CreacionFecha = DateTime.Now,
-                CreacionUsuario = "sistema"
+                CreacionFecha = DateTime.Now
             };
 
-            _context.Departamentos.Add(nuevo);
+            _context.Departamentos.Add(entity);
             await _context.SaveChangesAsync();
 
-            return new DepartamentoDTOs
+            return new DepartamentoGetDTO
             {
-                IdDepartamento = nuevo.IdDepartamento,
-                Nombre = nuevo.Nombre,
-                CreacionFecha = nuevo.CreacionFecha,
-                CreacionUsuario = nuevo.CreacionUsuario
+                IdDepartamento = entity.IdDepartamento,
+                Nombre = entity.Nombre,
+                CreacionFecha = entity.CreacionFecha
             };
         }
 
-        // ✅ Actualizar
-        public async Task<bool> UpdateDepartamentoAsync(DepartamentoUpdateDTO dto)
+        // UPDATE (recibe DTO de actualización)
+        public async Task<bool> UpdateAsync(int id, DepartamentoUpdateDTO dto)
         {
-            var departamento = await _context.Departamentos.FindAsync(dto.IdDepartamento);
-            if (departamento == null)
-                return false;
+            var existente = await _context.Departamentos.FindAsync(id);
+            if (existente == null) return false;
 
-            departamento.Nombre = dto.Nombre;
-            departamento.ModificacionFecha = DateTime.Now;
-            departamento.ModificacionUsuario = "sistema";
+            existente.Nombre = dto.Nombre;
+            existente.ModificacionFecha = DateTime.Now;
+            existente.ModificacionUsuario = dto.ModificacionUsuario;
 
-            _context.Departamentos.Update(departamento);
             await _context.SaveChangesAsync();
             return true;
         }
 
-        // ✅ Eliminar
-        public async Task<bool> DeleteDepartamentoAsync(int id)
+        // DELETE
+        public async Task<bool> DeleteAsync(int id)
         {
-            var departamento = await _context.Departamentos.FindAsync(id);
-            if (departamento == null)
-                return false;
+            var existe = await _context.Departamentos.FindAsync(id);
+            if (existe == null) return false;
 
-            _context.Departamentos.Remove(departamento);
+            _context.Departamentos.Remove(existe);
             await _context.SaveChangesAsync();
             return true;
         }

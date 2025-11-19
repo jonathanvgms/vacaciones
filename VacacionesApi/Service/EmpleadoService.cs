@@ -14,44 +14,100 @@ namespace VacacionesApi.Services
             _context = context;
         }
 
-        public async Task<List<Empleado>> GetAllEmpleadosAsync()
+        // ================================
+        // GET ALL
+        // ================================
+        public async Task<IEnumerable<EmpleadoGetDTO>> GetAllAsync()
         {
             return await _context.Empleados
                 .Include(e => e.IdUsuarioNavigation)
-                .Include(e => e.IdDepartamentoNavigation)
+                .Select(e => new EmpleadoGetDTO
+                {
+                    IdEmpleado = e.IdEmpleado,
+                    Nombre = e.IdUsuarioNavigation.Nombre,
+                    Apellido = e.IdUsuarioNavigation.Apellido
+                })
                 .ToListAsync();
         }
 
-        public async Task<Empleado?> GetEmpleadoByIdAsync(int id)
+        // ================================
+        // GET BY ID
+        // ================================
+        public async Task<EmpleadoInfoDTO> GetByIdAsync(int id)
         {
             return await _context.Empleados
                 .Include(e => e.IdUsuarioNavigation)
-                .Include(e => e.IdDepartamentoNavigation)
-                .FirstOrDefaultAsync(e => e.IdEmpleado == id);
+                .Where(e => e.IdEmpleado == id)
+                .Select(e => new EmpleadoInfoDTO
+                {
+                    IdEmpleado = e.IdEmpleado,
+                    Nombre = e.IdUsuarioNavigation.Nombre,
+                    Apellido = e.IdUsuarioNavigation.Apellido,
+                    Email = e.IdUsuarioNavigation.Email,
+                    IdRol = e.IdUsuarioNavigation.IdRol,
+                    Cargo = e.Cargo,
+                    IdDepartamento = e.IdDepartamento
+                })
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<Empleado> CreateEmpleadoAsync(Empleado empleado)
+        // ================================
+        // CREATE
+        // ================================
+        public async Task<EmpleadoInfoDTO> CreateAsync(EmpleadoCreateDTO dto)
         {
+            var empleado = new Empleado
+            {
+                IdUsuario = dto.IdUsuario,
+                IdDepartamento = dto.IdDepartamento,
+                Cargo = dto.Cargo,
+                FechaIngreso = DateTime.UtcNow
+            };
+
             _context.Empleados.Add(empleado);
             await _context.SaveChangesAsync();
-            return empleado;
+
+            var usuario = await _context.Usuarios.FindAsync(dto.IdUsuario);
+
+            return new EmpleadoInfoDTO
+            {
+                IdEmpleado = empleado.IdEmpleado,
+                Nombre = usuario.Nombre,
+                Apellido = usuario.Apellido,
+                Email = usuario.Email,
+                IdRol = usuario.IdRol,
+                Cargo = empleado.Cargo,
+                IdDepartamento = empleado.IdDepartamento
+            };
         }
 
-        public async Task<Empleado> UpdateEmpleadoAsync(Empleado empleado)
-        {
-            _context.Entry(empleado).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-            return empleado;
-        }
-
-        public async Task DeleteEmpleadoAsync(int id)
+        // ================================
+        // UPDATE
+        // ================================
+        public async Task<bool> UpdateAsync(int id, EmpleadoUpdateDTO dto)
         {
             var empleado = await _context.Empleados.FindAsync(id);
-            if (empleado != null)
-            {
-                _context.Empleados.Remove(empleado);
-                await _context.SaveChangesAsync();
-            }
+            if (empleado == null) return false;
+
+            empleado.IdDepartamento = dto.IdDepartamento;
+            empleado.Cargo = dto.Cargo;
+            empleado.ModificacionFecha = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // ================================
+        // DELETE
+        // ================================
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var empleado = await _context.Empleados.FindAsync(id);
+            if (empleado == null) return false;
+
+            _context.Empleados.Remove(empleado);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

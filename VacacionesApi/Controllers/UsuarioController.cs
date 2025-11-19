@@ -8,60 +8,52 @@ namespace VacacionesApi.Controllers
     [ApiController]
     public class UsuarioController : ControllerBase
     {
-        private readonly UsuarioService _usuarioService;
+        private readonly UsuarioService _service;
 
-        public UsuarioController(UsuarioService usuarioService)
+        public UsuarioController(UsuarioService service)
         {
-            _usuarioService = usuarioService;
+            _service = service;
         }
 
-        // ✅ GET: api/usuario
+        // GET ALL
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UsuarioDTO>>> GetUsuarios()
+        public async Task<IActionResult> GetUsuarios()
         {
-            var usuarios = await _usuarioService.GetAllUsuariosAsync();
-            return Ok(usuarios);
+            return Ok(await _service.GetAllAsync());
         }
 
-        // ✅ GET: api/usuario/{id}
+        // GET BY ID
         [HttpGet("{id}")]
-        public async Task<ActionResult<UsuarioDTO>> GetUsuario(int id)
+        public async Task<IActionResult> GetUsuario(int id)
         {
-            var usuario = await _usuarioService.GetUsuarioByIdAsync(id);
-            if (usuario == null) return NotFound();
-
-            return Ok(usuario);
+            var u = await _service.GetByIdAsync(id);
+            if (u == null) return NotFound();
+            return Ok(u);
         }
 
-        // ✅ POST: api/usuario
+        // CREATE
         [HttpPost]
-        public async Task<ActionResult<UsuarioDTO>> CreateUsuario([FromBody] UsuarioCreateDTO dto)
+        public async Task<IActionResult> CreateUsuario([FromBody] UsuarioCreateDTO dto)
         {
-            var nuevoUsuario = await _usuarioService.CreateUsuarioAsync(dto);
-            return CreatedAtAction(nameof(GetUsuario), new { id = nuevoUsuario.IdUsuario }, nuevoUsuario);
+            var created = await _service.CreateAsync(dto);
+            return Ok(created);
         }
 
-        // ✅ PUT: api/usuario/{id}
+        // UPDATE
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUsuario(int id, [FromBody] UsuarioUpdateDTO dto)
         {
-            if (id != dto.IdUsuario)
-                return BadRequest("El ID no coincide con el usuario enviado.");
-
-            var actualizado = await _usuarioService.UpdateUsuarioAsync(dto);
-            if (actualizado == null)
-                return NotFound();
+            var ok = await _service.UpdateAsync(id, dto);
+            if (!ok) return NotFound();
             return NoContent();
         }
 
-        // ✅ DELETE: api/usuario/{id}
+        // DELETE
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUsuario(int id)
         {
-            var eliminado = await _usuarioService.DeleteUsuarioAsync(id);
-            if (!eliminado)
-            return NotFound();
-
+            var ok = await _service.DeleteAsync(id);
+            if (!ok) return NotFound();
             return NoContent();
         }
     }

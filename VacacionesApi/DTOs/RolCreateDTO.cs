@@ -1,6 +1,6 @@
 ﻿namespace VacacionesApi;
 
-public class RolDTO
+public class RolCreateDTO
 {
         public string Nombre { get; set; } = null!;
 }

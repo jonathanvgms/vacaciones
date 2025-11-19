@@ -3,7 +3,6 @@ using VacacionesApi.Services;
 using VacacionesApi.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
 namespace VacacionesApi.Controllers
 {
     [Route("api/[controller]")]
@@ -17,51 +16,47 @@ namespace VacacionesApi.Controllers
             _service = service;
         }
 
-        // ✅ GET: api/Solicitud
+        // GET ALL
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SolicitudDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<SolicitudGetDTO>>> GetSolicitudes()
         {
-            var solicitudes = await _service.GetAllAsync();
-            return Ok(solicitudes);
+            return Ok(await _service.GetAllAsync());
         }
 
-        // ✅ GET: api/Solicitud/5
+        // GET BY ID
         [HttpGet("{id}")]
-        public async Task<ActionResult<SolicitudDto>> GetById(int id)
+        public async Task<ActionResult<SolicitudInfoDTO>> GetSolicitud(int id)
         {
-            var solicitud = await _service.GetByIdAsync(id);
-            if (solicitud == null)
-                return NotFound();
+            var sol = await _service.GetByIdAsync(id);
+            if (sol == null) return NotFound();
 
-            return Ok(solicitud);
+            return Ok(sol);
         }
 
-        // ✅ POST: api/Solicitud
+        // CREATE
         [HttpPost]
-        public async Task<ActionResult<Solicitud>> Create(SolicitudCreateDto dto)
+        public async Task<ActionResult<SolicitudInfoDTO>> CreateSolicitud([FromBody] SolicitudCreateDTO dto)
         {
             var created = await _service.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.IdSolicitud }, created);
+            return CreatedAtAction(nameof(GetSolicitud), new { id = created.IdSolicitud }, created);
         }
 
-        // ✅ PUT: api/Solicitud/5
+        // UPDATE
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, SolicitudUpdateDto dto)
+        public async Task<IActionResult> UpdateSolicitud(int id, [FromBody] SolicitudUpdateDTO dto)
         {
-            var updated = await _service.UpdateAsync(id, dto);
-            if (!updated)
-                return NotFound();
+            var ok = await _service.UpdateAsync(id, dto);
+            if (!ok) return NotFound();
 
             return NoContent();
         }
 
-        // ✅ DELETE: api/Solicitud/5
+        // DELETE
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteSolicitud(int id)
         {
-            var deleted = await _service.DeleteAsync(id);
-            if (!deleted)
-                return NotFound();
+            var ok = await _service.DeleteAsync(id);
+            if (!ok) return NotFound();
 
             return NoContent();
         }
