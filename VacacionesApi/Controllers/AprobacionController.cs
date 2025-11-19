@@ -9,60 +9,40 @@ namespace VacacionesApi.Controllers
     [ApiController]
     public class AprobacionController : ControllerBase
     {
-        private readonly AprobacionService _aprobacionService;
+        private readonly AprobacionService _service;
 
-        public AprobacionController(AprobacionService aprobacionService)
+        public AprobacionController(AprobacionService service)
         {
-            _aprobacionService = aprobacionService;
+            _service = service;
         }
 
-        // GET: api/aprobacion
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AprobacionDTO>>> GetAll()
-        {
-            var aprobaciones = await _aprobacionService.GetAllAprobacionesAsync();
-            return Ok(aprobaciones);
-        }
+        public async Task<IActionResult> GetAll() =>
+            Ok(await _service.GetAllAsync());
 
-        // GET: api/aprobacion/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<AprobacionDTO>> GetById(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            var aprobacion = await _aprobacionService.GetAprobacionByIdAsync(id);
-            if (aprobacion == null)
-                return NotFound();
-
-            return Ok(aprobacion);
+            var result = await _service.GetByIdAsync(id);
+            return result == null ? NotFound() : Ok(result);
         }
 
-        // POST: api/aprobacion
         [HttpPost]
-        public async Task<ActionResult<AprobacionDTO>> Create([FromBody] AprobacionDTO dto)
-        {
-            var created = await _aprobacionService.CreateAprobacionAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.IdAprobacion }, created);
-        }
+        public async Task<IActionResult> Create(AprobacionCreateDTO dto) =>
+            Ok(await _service.CreateAsync(dto));
 
-        // PUT: api/aprobacion/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] AprobacionDTO dto)
+        public async Task<IActionResult> Update(int id, AprobacionUpdateDTO dto)
         {
-            var updated = await _aprobacionService.UpdateAprobacionAsync(id, dto);
-            if (!updated)
-                return NotFound();
-
-            return NoContent();
+            var ok = await _service.UpdateAsync(id, dto);
+            return ok ? Ok() : NotFound();
         }
 
-        // DELETE: api/aprobacion/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var deleted = await _aprobacionService.DeleteAprobacionAsync(id);
-            if (!deleted)
-                return NotFound();
-
-            return NoContent();
+            var ok = await _service.DeleteAsync(id);
+            return ok ? Ok() : NotFound();
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using VacacionesApi.Models;
 using Microsoft.EntityFrameworkCore;
+
 namespace VacacionesApi.Services
 {
     public class AprobacionService
@@ -14,100 +15,105 @@ namespace VacacionesApi.Services
             _context = context;
         }
 
-        // ✅ Obtener todas las aprobaciones
-        public async Task<List<AprobacionDTO>> GetAllAprobacionesAsync()
+        // ============================
+        // GET ALL
+        // ============================
+        public async Task<IEnumerable<AprobacionGetDTO>> GetAllAsync()
         {
             return await _context.Aprobaciones
                 .Include(a => a.IdAprobadorNavigation)
-                .ThenInclude(e => e.IdUsuarioNavigation)
-                .Include(a => a.IdSolicitudNavigation)
-    .Select(a => new AprobacionDTO
-    {
+                    .ThenInclude(e => e.IdUsuarioNavigation)
+                .Select(a => new AprobacionGetDTO
+                {
                     IdAprobacion = a.IdAprobacion,
                     IdSolicitud = a.IdSolicitud,
                     IdAprobador = a.IdAprobador,
+                    NombreAprobador = a.IdAprobadorNavigation.IdUsuarioNavigation.Nombre,
+                    ApellidoAprobador = a.IdAprobadorNavigation.IdUsuarioNavigation.Apellido,
                     Comentario = a.Comentario,
-                    CreacionFecha = a.CreacionFecha,
-                    CreacionUsaurio = a.CreacionUsaurio,
-                    ModificacionFecha = a.ModificacionFecha,
-                    ModificacionUsuario = a.ModificacionUsuario,
-                    NombreAprobador = a.IdAprobadorNavigation.IdUsuarioNavigation.Nombre + " " +
-                    a.IdAprobadorNavigation.IdUsuarioNavigation.Apellido,
-                    SolicitudResumen = "Solicitud #" + a.IdSolicitudNavigation.IdSolicitud
-    })
-    .ToListAsync();
-    }
+                    CreacionFecha = a.CreacionFecha
+                })
+                .ToListAsync();
+        }
 
-        // ✅ Obtener una aprobación por ID
-        public async Task<AprobacionDTO?> GetAprobacionByIdAsync(int id)
+        // ============================
+        // GET BY ID
+        // ============================
+        public async Task<AprobacionGetDTO?> GetByIdAsync(int id)
         {
-return await _context.Aprobaciones
-    .Include(a => a.IdAprobadorNavigation)
-        .ThenInclude(e => e.IdUsuarioNavigation)
-    .Include(a => a.IdSolicitudNavigation)
-    .Where(a => a.IdAprobacion == id)
-    .Select(a => new AprobacionDTO
-    {
+            return await _context.Aprobaciones
+                .Include(a => a.IdAprobadorNavigation)
+                    .ThenInclude(e => e.IdUsuarioNavigation)
+                .Where(a => a.IdAprobacion == id)
+                .Select(a => new AprobacionGetDTO
+                {
                     IdAprobacion = a.IdAprobacion,
                     IdSolicitud = a.IdSolicitud,
                     IdAprobador = a.IdAprobador,
+                    NombreAprobador = a.IdAprobadorNavigation.IdUsuarioNavigation.Nombre,
+                    ApellidoAprobador = a.IdAprobadorNavigation.IdUsuarioNavigation.Apellido,
                     Comentario = a.Comentario,
-                    CreacionFecha = a.CreacionFecha,
-                    CreacionUsaurio = a.CreacionUsaurio,
-                    ModificacionFecha = a.ModificacionFecha,
-                    ModificacionUsuario = a.ModificacionUsuario,
-                    NombreAprobador = a.IdAprobadorNavigation.IdUsuarioNavigation.Nombre + " " +
-                    a.IdAprobadorNavigation.IdUsuarioNavigation.Apellido,
-                    SolicitudResumen = "Solicitud #" + a.IdSolicitudNavigation.IdSolicitud
-    })
-    .FirstOrDefaultAsync();
-    }
+                    CreacionFecha = a.CreacionFecha
+                })
+                .FirstOrDefaultAsync();
+        }
 
-
-        // ✅ Crear nueva aprobación
-        public async Task<AprobacionDTO> CreateAprobacionAsync(AprobacionDTO dto)
+        // ============================
+        // CREATE
+        // ============================
+        public async Task<AprobacionGetDTO> CreateAsync(AprobacionCreateDTO dto)
         {
             var aprobacion = new Aprobacion
             {
                 IdSolicitud = dto.IdSolicitud,
                 IdAprobador = dto.IdAprobador,
                 Comentario = dto.Comentario,
-                CreacionFecha = dto.CreacionFecha,
-                CreacionUsaurio = dto.CreacionUsaurio,
-                ModificacionFecha = dto.ModificacionFecha,
-                ModificacionUsuario = dto.ModificacionUsuario
+                CreacionFecha = DateTime.Now,
+                CreacionUsaurio = "Sistema"
             };
 
             _context.Aprobaciones.Add(aprobacion);
             await _context.SaveChangesAsync();
 
-            dto.IdAprobacion = aprobacion.IdAprobacion;
-            return dto;
+            var empleado = await _context.Empleados
+                .Include(e => e.IdUsuarioNavigation)
+                .FirstOrDefaultAsync(e => e.IdEmpleado == dto.IdAprobador);
+
+            return new AprobacionGetDTO
+            {
+                IdAprobacion = aprobacion.IdAprobacion,
+                IdSolicitud = aprobacion.IdSolicitud,
+                IdAprobador = aprobacion.IdAprobador,
+                NombreAprobador = empleado?.IdUsuarioNavigation.Nombre,
+                ApellidoAprobador = empleado?.IdUsuarioNavigation.Apellido,
+                Comentario = aprobacion.Comentario,
+                CreacionFecha = aprobacion.CreacionFecha
+            };
         }
 
-        // ✅ Actualizar aprobación existente
-        public async Task<bool> UpdateAprobacionAsync(int id, AprobacionDTO dto)
+        // ============================
+        // UPDATE
+        // ============================
+        public async Task<bool> UpdateAsync(int id, AprobacionUpdateDTO dto)
         {
             var aprobacion = await _context.Aprobaciones.FindAsync(id);
-            if (aprobacion == null)
-                return false;
+            if (aprobacion == null) return false;
 
-            aprobacion.IdSolicitud = dto.IdSolicitud;
-            aprobacion.IdAprobador = dto.IdAprobador;
             aprobacion.Comentario = dto.Comentario;
-            aprobacion.ModificacionFecha = dto.ModificacionFecha;
-            aprobacion.ModificacionUsuario = dto.ModificacionUsuario;
+            aprobacion.ModificacionFecha = DateTime.Now;
+            aprobacion.ModificacionUsuario = "Sistema";
 
             await _context.SaveChangesAsync();
             return true;
         }
 
-        // ✅ Eliminar aprobación
-        public async Task<bool> DeleteAprobacionAsync(int id)
+        // ============================
+        // DELETE
+        // ============================
+        public async Task<bool> DeleteAsync(int id)
         {
             var aprobacion = await _context.Aprobaciones.FindAsync(id);
-            if (aprobacion == null)
-                return false;
+            if (aprobacion == null) return false;
 
             _context.Aprobaciones.Remove(aprobacion);
             await _context.SaveChangesAsync();

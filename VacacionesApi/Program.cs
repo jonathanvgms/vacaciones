@@ -21,7 +21,7 @@ builder.Services.AddScoped<EmpleadoService>();
 builder.Services.AddScoped<FeriadoService>();
 builder.Services.AddScoped<NotificacionService>();
 builder.Services.AddScoped<RolService>();
-builder.Services.AddScoped<SaldoVacacionesService>();
+builder.Services.AddScoped<SaldoVacacioneService>();
 builder.Services.AddScoped<SolicitudService>();
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<EstadoSolicitudService>();

@@ -7,63 +7,56 @@ namespace VacacionesApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SaldoVacacionesController : ControllerBase
+    public class SaldoVacacioneController : ControllerBase
     {
-        private readonly SaldoVacacionesService _service;
+        private readonly SaldoVacacioneService _service;
 
-        public SaldoVacacionesController(SaldoVacacionesService service)
+        public SaldoVacacioneController(SaldoVacacioneService service)
         {
             _service = service;
         }
 
-        // ✅ GET: api/SaldoVacaciones
+        // GET ALL
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SaldoVacacionesDTO>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var saldos = await _service.GetAllAsync();
-            return Ok(saldos);
+            return Ok(await _service.GetAllAsync());
         }
 
-        // ✅ GET: api/SaldoVacaciones/5
+        // GET BY ID
         [HttpGet("{id}")]
-        public async Task<ActionResult<SaldoVacacionesDTO>> GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
             var saldo = await _service.GetByIdAsync(id);
-            if (saldo == null)
-                return NotFound();
+            if (saldo == null) return NotFound();
 
             return Ok(saldo);
         }
 
-        // ✅ POST: api/SaldoVacaciones
+        // CREATE
         [HttpPost]
-        public async Task<ActionResult<SaldoVacacionesDTO>> Create(SaldoVacacionesCreateDTO dto)
+        public async Task<IActionResult> Create(SaldoVacacioneCreateDTO dto)
         {
-            var created = await _service.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.IdSaldo }, created);
+            var nuevo = await _service.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = nuevo.IdSaldo }, nuevo);
         }
 
-        // ✅ PUT: api/SaldoVacaciones/5
+        // UPDATE
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, SaldoVacacionesUpdateDTO dto)
+        public async Task<IActionResult> Update(int id, SaldoVacacioneUpdateDTO dto)
         {
-            if (id != dto.IdSaldo)
-                return BadRequest("El ID no coincide.");
-
             var updated = await _service.UpdateAsync(id, dto);
-            if (!updated)
-                return NotFound();
+            if (!updated) return NotFound();
 
             return NoContent();
         }
 
-        // ✅ DELETE: api/SaldoVacaciones/5
+        // DELETE
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _service.DeleteAsync(id);
-            if (!deleted)
-                return NotFound();
+            if (!deleted) return NotFound();
 
             return NoContent();
         }

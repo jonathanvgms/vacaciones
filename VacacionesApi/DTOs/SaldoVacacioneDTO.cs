@@ -1,6 +1,6 @@
 ﻿namespace VacacionesApi;
 
-public class SaldoVacacionesDTO
+public class SaldoVacacioneDTO
 {
         public int IdSaldo { get; set; }
         public int IdEmpleado { get; set; }

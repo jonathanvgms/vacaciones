@@ -32,11 +32,10 @@ public partial class VacacionesContext : DbContext
 
     public virtual DbSet<Rol> Roles { get; set; }
 
-    public virtual DbSet<SaldoVacacione> SaldosVacaciones { get; set; }
-
     public virtual DbSet<Solicitud> Solicitudes { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
+    public virtual DbSet<SaldoVacacione> SaldoVacaciones { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
