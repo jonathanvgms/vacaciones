@@ -167,7 +167,7 @@ public partial class VacacionesContext : DbContext
             entity.Property(e => e.ModificacionFecha)
                 .HasColumnType("datetime")
                 .HasColumnName("modificacion_fecha");
-            entity.Property(e => e.ModificaionUsuario)
+            entity.Property(e => e.ModificacionUsuario)
                 .HasMaxLength(120)
                 .HasColumnName("modificaion:usuario");
 
@@ -343,6 +343,11 @@ public partial class VacacionesContext : DbContext
             entity.Property(e => e.ModificacionUsuario)
                 .HasMaxLength(120)
                 .HasColumnName("modificacion_usuario");
+            entity.HasOne(e => e.Empleado)
+                .WithMany(emp => emp.SaldoVacaciones)
+                .HasForeignKey(e => e.IdEmpleado)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("saldo_vacaciones_ibfk_1");
 
         });
 

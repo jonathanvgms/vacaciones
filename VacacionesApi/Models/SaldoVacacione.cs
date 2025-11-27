@@ -25,6 +25,6 @@ public partial class SaldoVacacione
     public DateTime? ModificacionFecha { get; set; }
 
     public string? ModificacionUsuario { get; set; }
-
+    public virtual Empleado Empleado { get; set; } = null!;
 
 }

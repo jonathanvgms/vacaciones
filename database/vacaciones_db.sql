@@ -5,13 +5,6 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
 -- -----------------------------------------------------
--- Schema mydb
--- -----------------------------------------------------
--- -----------------------------------------------------
--- Schema vacaciones_db
--- -----------------------------------------------------
-
--- -----------------------------------------------------
 -- Schema vacaciones_db
 -- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `vacaciones_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
@@ -28,11 +21,10 @@ CREATE TABLE IF NOT EXISTS `vacaciones_db`.`ambito_feriado` (
   `modificaion_fecha` DATETIME NULL,
   `modificacion_usuario` VARCHAR(120) NULL,
   PRIMARY KEY (`id_ambito`),
-  UNIQUE INDEX `nombre` (`nombre` ASC) VISIBLE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
+  UNIQUE INDEX `nombre` (`nombre` ASC) VISIBLE
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci;
 
 -- -----------------------------------------------------
 -- Table `vacaciones_db`.`departamento`
@@ -45,11 +37,10 @@ CREATE TABLE IF NOT EXISTS `vacaciones_db`.`departamento` (
   `modificacion_fecha` DATETIME NULL,
   `modificacion_usuario` VARCHAR(120) NULL,
   PRIMARY KEY (`id_departamento`),
-  UNIQUE INDEX `nombre` (`nombre` ASC) VISIBLE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
+  UNIQUE INDEX `nombre` (`nombre` ASC) VISIBLE
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci;
 
 -- -----------------------------------------------------
 -- Table `vacaciones_db`.`rol`
@@ -62,11 +53,10 @@ CREATE TABLE IF NOT EXISTS `vacaciones_db`.`rol` (
   `modificacion_fecha` DATETIME NULL,
   `modificacion_usuario` VARCHAR(120) NULL,
   PRIMARY KEY (`id_rol`),
-  UNIQUE INDEX `nombre` (`nombre` ASC) VISIBLE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
+  UNIQUE INDEX `nombre` (`nombre` ASC) VISIBLE
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci;
 
 -- -----------------------------------------------------
 -- Table `vacaciones_db`.`usuario`
@@ -87,11 +77,10 @@ CREATE TABLE IF NOT EXISTS `vacaciones_db`.`usuario` (
   INDEX `id_rol` (`id_rol` ASC) VISIBLE,
   CONSTRAINT `usuario_ibfk_1`
     FOREIGN KEY (`id_rol`)
-    REFERENCES `vacaciones_db`.`rol` (`id_rol`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
+    REFERENCES `vacaciones_db`.`rol` (`id_rol`)
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci;
 
 -- -----------------------------------------------------
 -- Table `vacaciones_db`.`empleado`
@@ -105,7 +94,7 @@ CREATE TABLE IF NOT EXISTS `vacaciones_db`.`empleado` (
   `creacion_fecha` DATETIME NULL,
   `creacion_usuario` VARCHAR(120) NULL,
   `modificacion_fecha` DATETIME NULL,
-  `modificaion:usuario` VARCHAR(120) NULL,
+  `modificaion_usuario` VARCHAR(120) NULL, -- mantengo el typo 'modificaion' pero el identificador es válido
   PRIMARY KEY (`id_empleado`),
   INDEX `fk_emp_usuario` (`id_usuario` ASC) VISIBLE,
   INDEX `fk_emp_departamento` (`id_departamento` ASC) VISIBLE,
@@ -114,11 +103,10 @@ CREATE TABLE IF NOT EXISTS `vacaciones_db`.`empleado` (
     REFERENCES `vacaciones_db`.`departamento` (`id_departamento`),
   CONSTRAINT `fk_emp_usuario`
     FOREIGN KEY (`id_usuario`)
-    REFERENCES `vacaciones_db`.`usuario` (`id_usuario`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
+    REFERENCES `vacaciones_db`.`usuario` (`id_usuario`)
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci;
 
 -- -----------------------------------------------------
 -- Table `vacaciones_db`.`estado_solicitud`
@@ -130,11 +118,10 @@ CREATE TABLE IF NOT EXISTS `vacaciones_db`.`estado_solicitud` (
   `fecha_usuario` VARCHAR(120) NULL,
   `estado_solicitudcol` VARCHAR(45) NULL,
   PRIMARY KEY (`id_estado`),
-  UNIQUE INDEX `nombre` (`nombre` ASC) VISIBLE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
+  UNIQUE INDEX `nombre` (`nombre` ASC) VISIBLE
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci;
 
 -- -----------------------------------------------------
 -- Table `vacaciones_db`.`solicitud`
@@ -157,22 +144,21 @@ CREATE TABLE IF NOT EXISTS `vacaciones_db`.`solicitud` (
     REFERENCES `vacaciones_db`.`empleado` (`id_empleado`),
   CONSTRAINT `solicitud_ibfk_2`
     FOREIGN KEY (`id_estado`)
-    REFERENCES `vacaciones_db`.`estado_solicitud` (`id_estado`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
+    REFERENCES `vacaciones_db`.`estado_solicitud` (`id_estado`)
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci;
 
 -- -----------------------------------------------------
 -- Table `vacaciones_db`.`aprobacion`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `vacaciones_db`.`aprobacion` (
-  `id_aprobac public string? CreacionUsuario { get; set; }ion` INT NOT NULL AUTO_INCREMENT,
+  `id_aprobacion` INT NOT NULL AUTO_INCREMENT,
   `id_solicitud` INT NOT NULL,
   `id_aprobador` INT NOT NULL,
   `comentario` VARCHAR(500) NULL DEFAULT NULL,
   `creacion_fecha` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `creacion_usaurio` VARCHAR(120) NOT NULL,
+  `creacion_usaurio` VARCHAR(120) NOT NULL, -- mantengo typo 'usaurio' como en tu script original
   `modificacion_fecha` DATETIME NULL,
   `modificacion_usuario` VARCHAR(120) NULL,
   PRIMARY KEY (`id_aprobacion`),
@@ -183,11 +169,10 @@ CREATE TABLE IF NOT EXISTS `vacaciones_db`.`aprobacion` (
     REFERENCES `vacaciones_db`.`solicitud` (`id_solicitud`),
   CONSTRAINT `aprobacion_ibfk_2`
     FOREIGN KEY (`id_aprobador`)
-    REFERENCES `vacaciones_db`.`empleado` (`id_empleado`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
+    REFERENCES `vacaciones_db`.`empleado` (`id_empleado`)
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci;
 
 -- -----------------------------------------------------
 -- Table `vacaciones_db`.`feriado`
@@ -207,11 +192,10 @@ CREATE TABLE IF NOT EXISTS `vacaciones_db`.`feriado` (
   INDEX `id_ambito` (`id_ambito` ASC) VISIBLE,
   CONSTRAINT `feriado_ibfk_1`
     FOREIGN KEY (`id_ambito`)
-    REFERENCES `vacaciones_db`.`ambito_feriado` (`id_ambito`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
+    REFERENCES `vacaciones_db`.`ambito_feriado` (`id_ambito`)
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci;
 
 -- -----------------------------------------------------
 -- Table `vacaciones_db`.`notificacion`
@@ -231,11 +215,10 @@ CREATE TABLE IF NOT EXISTS `vacaciones_db`.`notificacion` (
   INDEX `id_usuario` (`id_usuario` ASC) VISIBLE,
   CONSTRAINT `notificacion_ibfk_1`
     FOREIGN KEY (`id_usuario`)
-    REFERENCES `vacaciones_db`.`usuario` (`id_usuario`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
+    REFERENCES `vacaciones_db`.`usuario` (`id_usuario`)
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci;
 
 -- -----------------------------------------------------
 -- Table `vacaciones_db`.`saldo_vacaciones`
@@ -255,11 +238,10 @@ CREATE TABLE IF NOT EXISTS `vacaciones_db`.`saldo_vacaciones` (
   UNIQUE INDEX `id_empleado` (`id_empleado` ASC, `anio` ASC) VISIBLE,
   CONSTRAINT `saldo_vacaciones_ibfk_1`
     FOREIGN KEY (`id_empleado`)
-    REFERENCES `vacaciones_db`.`empleado` (`id_empleado`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
+    REFERENCES `vacaciones_db`.`empleado` (`id_empleado`)
+) ENGINE = InnoDB
+  DEFAULT CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

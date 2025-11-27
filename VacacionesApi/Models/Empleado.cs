@@ -21,7 +21,7 @@ public partial class Empleado
 
     public DateTime? ModificacionFecha { get; set; }
 
-    public string? ModificaionUsuario { get; set; }
+    public string? ModificacionUsuario { get; set; }
 
     public virtual ICollection<Aprobacion> Aprobacions { get; set; } = new List<Aprobacion>();
 
