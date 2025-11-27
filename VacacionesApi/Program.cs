@@ -25,6 +25,8 @@ builder.Services.AddScoped<SaldoVacacioneService>();
 builder.Services.AddScoped<SolicitudService>();
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<EstadoSolicitudService>();
+builder.Services.AddScoped<AmbitoFeriadoService>();
+
 
 
 builder.Services.AddControllers();

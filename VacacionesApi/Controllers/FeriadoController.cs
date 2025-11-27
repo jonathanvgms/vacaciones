@@ -10,66 +10,56 @@ namespace VacacionesApi.Controllers
     [ApiController]
     public class FeriadoController : ControllerBase
     {
-        private readonly FeriadoService _feriadoService;
+        private readonly FeriadoService _service;
 
-        public FeriadoController(FeriadoService feriadoService)
+        public FeriadoController(FeriadoService service)
         {
-            _feriadoService = feriadoService;
+            _service = service;
         }
 
+        // GET ALL
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Feriado>>> GetAll()
+        public async Task<ActionResult<IEnumerable<FeriadoGetDTO>>> GetFeriados()
         {
-            var feriados = await _feriadoService.GetAllFeriadosAsync();
-            return Ok(feriados);
+            return Ok(await _service.GetAllAsync());
         }
 
+        // GET BY ID
         [HttpGet("{id}")]
-        public async Task<ActionResult<Feriado>> GetById(int id)
+        public async Task<ActionResult<FeriadoGetDTO>> GetFeriado(int id)
         {
-            var feriado = await _feriadoService.GetFeriadoByIdAsync(id);
-            if (feriado == null)
-            {
-                return NotFound();
-            }
+            var feriado = await _service.GetByIdAsync(id);
+            if (feriado == null) return NotFound();
             return Ok(feriado);
         }
 
+        // CREATE
         [HttpPost]
-        public async Task<ActionResult<Feriado>> Create(Feriado feriado)
+        public async Task<IActionResult> Create([FromBody] FeriadoCreateDTO dto)
         {
-            var createdFeriado = await _feriadoService.CreateFeriadoAsync(feriado);
-            return CreatedAtAction(nameof(GetById), new { id = createdFeriado.IdFeriado }, createdFeriado);
+            if (dto == null) return BadRequest("Datos inválidos.");
+
+            var creado = await _service.CreateAsync(dto);
+            return Ok(creado);
         }
 
+        // UPDATE
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Feriado feriado)
+        public async Task<IActionResult> Update(int id, [FromBody] FeriadoUpdateDTO dto)
         {
-            if (id != feriado.IdFeriado)
-            {
-                return BadRequest();
-            }
+            var ok = await _service.UpdateAsync(id, dto);
+            if (!ok) return NotFound();
 
-            var existingFeriado = await _feriadoService.GetFeriadoByIdAsync(id);
-            if (existingFeriado == null)
-            {
-                return NotFound();
-            }
-
-            await _feriadoService.UpdateFeriadoAsync(feriado);
             return NoContent();
         }
 
+        // DELETE
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existingFeriado = await _feriadoService.GetFeriadoByIdAsync(id);
-            if (existingFeriado == null)
-            {
-                return NotFound();
-            }
+            var ok = await _service.DeleteAsync(id);
+            if (!ok) return NotFound();
 
-            await _feriadoService.DeleteFeriadoAsync(id);
             return NoContent();
         }
     }
