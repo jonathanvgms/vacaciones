@@ -45,7 +45,9 @@ namespace VacacionesApi.Services
         {
             var estado = new EstadoSolicitud
             {
-                Nombre = dto.Nombre
+                Nombre = dto.Nombre,
+                FechaUsuario = "sistema",
+                FechaCreacion = DateTime.Now
             };
 
             _context.EstadoSolicituds.Add(estado);

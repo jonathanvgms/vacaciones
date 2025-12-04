@@ -61,7 +61,10 @@ namespace VacacionesApi.Services
                 IdUsuario = dto.IdUsuario,
                 IdDepartamento = dto.IdDepartamento,
                 Cargo = dto.Cargo,
-                FechaIngreso = DateTime.UtcNow
+                FechaIngreso = DateTime.UtcNow,
+                CreacionUsuario = "sistema",
+                ModificacionFecha = DateTime.Now,
+                ModificacionUsuario = "sistema"
             };
 
             _context.Empleados.Add(empleado);

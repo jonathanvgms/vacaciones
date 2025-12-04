@@ -55,7 +55,9 @@ namespace VacacionesApi.Services
                 Descripcion = dto.Descripcion,
                 Pais = dto.Pais,
                 CreacionFecha = DateTime.Now,
-                CreacionUsuario = "system"
+                CreacionUsuario = "system",
+                ModificacionFecha = DateTime.Now,
+                ModificacionUsuario = "sistema"
             };
 
             _context.Feriados.Add(nuevo);

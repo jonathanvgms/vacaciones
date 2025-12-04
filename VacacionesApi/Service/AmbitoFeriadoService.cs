@@ -43,7 +43,9 @@ public class AmbitoFeriadoService
             {
                 Nombre = dto.Nombre,
                 CreacionFecha = DateTime.Now,
-                CreacionUsuario = "system"
+                CreacionUsuario = "system",
+                ModificaionFecha = DateTime.Now,
+                ModificacionUsuario = "sistema"
             };
 
             _context.AmbitoFeriados.Add(entidad);

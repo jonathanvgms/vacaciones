@@ -56,7 +56,10 @@ namespace VacacionesApi.Services
             var entity = new Departamento
             {
                 Nombre = dto.Nombre,
-                CreacionFecha = DateTime.Now
+                CreacionFecha = DateTime.Now,
+                CreacionUsuario = "sistema",
+                ModificacionFecha = DateTime.Now,
+                ModificacionUsuario = "sistema"
             };
 
             _context.Departamentos.Add(entity);

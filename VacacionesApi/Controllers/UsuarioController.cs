@@ -44,8 +44,8 @@ namespace VacacionesApi.Controllers
         public async Task<IActionResult> UpdateUsuario(int id, [FromBody] UsuarioUpdateDTO dto)
         {
             var ok = await _service.UpdateAsync(id, dto);
-            if (!ok) return NotFound();
-            return NoContent();
+            if (ok == null) return NotFound();
+            return Ok(ok);
         }
 
         // DELETE

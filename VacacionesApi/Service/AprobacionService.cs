@@ -69,7 +69,9 @@ namespace VacacionesApi.Services
                 IdAprobador = dto.IdAprobador,
                 Comentario = dto.Comentario,
                 CreacionFecha = DateTime.Now,
-                CreacionUsaurio = "Sistema"
+                CreacionUsaurio = "Sistema",
+                ModificacionFecha = DateTime.Now,
+                ModificacionUsuario = "sistema"
             };
 
             _context.Aprobaciones.Add(aprobacion);

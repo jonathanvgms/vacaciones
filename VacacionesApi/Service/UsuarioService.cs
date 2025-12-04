@@ -66,7 +66,9 @@ namespace VacacionesApi.Services
                 Apellido = dto.Apellido,
                 IdRol = dto.IdRol,
                 CreacionFecha = DateTime.Now,
-                CreacionUsuario = "sistema"
+                CreacionUsuario = "sistema",
+                ModificacionFecha = DateTime.Now,
+                ModificacionUsuario = "sistema"
             };
 
             _context.Usuarios.Add(entity);
@@ -85,10 +87,10 @@ namespace VacacionesApi.Services
         }
 
         // UPDATE
-        public async Task<bool> UpdateAsync(int id, UsuarioUpdateDTO dto)
+        public async Task<UsuarioGetDTO> UpdateAsync(int id, UsuarioUpdateDTO dto)
         {
             var u = await _context.Usuarios.FindAsync(id);
-            if (u == null) return false;
+            if (u == null) return null;
 
             u.Email = dto.Email;
             u.Nombre = dto.Nombre;
@@ -98,7 +100,17 @@ namespace VacacionesApi.Services
             u.ModificacionUsuario = dto.ModificacionUsuario;
 
             await _context.SaveChangesAsync();
-            return true;
+            return new UsuarioGetDTO
+            {
+                Email = u.Email,
+                Nombre = u.Nombre,
+                Apellido = u.Apellido,
+                CreacionFecha = u.CreacionFecha,
+                CreacionUsuario = u.CreacionUsuario,
+                ModificacionFecha = u.CreacionFecha,
+                ModificacionUsuario = u.ModificacionUsuario
+
+            };
         }
 
         // DELETE

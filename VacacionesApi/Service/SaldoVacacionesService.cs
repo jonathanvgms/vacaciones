@@ -60,7 +60,9 @@ namespace VacacionesApi.Services
                 DiasTomados = dto.DiasTomados,
                 DiasPendientes = dto.DiasAsignados - dto.DiasTomados,
                 CreacionFecha = DateTime.Now,
-                CreacionUsuario = "admin"
+                CreacionUsuario = "admin",
+                ModificacionFecha = DateTime.Now,
+                ModificacionUsuario = "sistema"
             };
 
             _context.SaldoVacaciones.Add(saldo);

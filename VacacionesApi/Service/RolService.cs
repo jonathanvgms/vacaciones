@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using VacacionesApi.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 
 namespace VacacionesApi.Services
 {
@@ -38,7 +39,11 @@ namespace VacacionesApi.Services
                 .Select(r => new RolInfoDTO
                 {
                     IdRol = r.IdRol,
-                    Nombre = r.Nombre
+                    Nombre = r.Nombre,
+                    CreacionFecha = r.CreacionFecha,
+                    CreacionUsuario = r.CreacionUsuario,
+                    ModificacionFecha = r.ModificacionFecha,
+                    ModificacionUsuario = r.ModificacionUsuario
                 })
                 .FirstOrDefaultAsync();
         }
@@ -48,7 +53,11 @@ namespace VacacionesApi.Services
 {
     var nuevoRol = new Rol
     {
-        Nombre = dto.Nombre
+        Nombre = dto.Nombre,
+        CreacionUsuario = "sistema",
+        CreacionFecha = DateTime.Now,        
+        ModificacionFecha = DateTime.Now,
+        ModificacionUsuario = "sistema"
     };
 
     _context.Roles.Add(nuevoRol);
@@ -57,23 +66,36 @@ namespace VacacionesApi.Services
     return new RolGetDTO
     {
         IdRol = nuevoRol.IdRol,
-        Nombre = nuevoRol.Nombre
+        Nombre = nuevoRol.Nombre,
+        CreacionFecha = nuevoRol.CreacionFecha,
+        CreacionUsuario = nuevoRol.CreacionUsuario,
+        ModificacionFecha = nuevoRol.ModificacionFecha,
+        ModificacionUsuario = nuevoRol.ModificacionUsuario
     };
 }
 
 
         // UPDATE
-        public async Task<bool> UpdateRoleAsync(int id, RolUpdateDTO dto)
+        public async Task<RolGetDTO> UpdateRoleAsync(int id, RolUpdateDTO dto)
         {
             var rol = await _context.Roles.FindAsync(id);
-            if (rol == null) return false;
+            if (rol == null) return null;
 
             rol.Nombre = dto.Nombre;
             rol.ModificacionFecha = DateTime.Now;
             rol.ModificacionUsuario = dto.ModificacionUsuario;
 
             await _context.SaveChangesAsync();
-            return true;
+
+            return new RolGetDTO
+            {
+                IdRol = rol.IdRol,
+                Nombre = rol.Nombre,
+                CreacionFecha = rol.CreacionFecha,
+                CreacionUsuario = rol.CreacionUsuario,
+                ModificacionFecha = rol.ModificacionFecha,
+                ModificacionUsuario = rol.ModificacionUsuario
+            };
         }
 
         // DELETE

@@ -52,12 +52,12 @@ namespace VacacionesApi.Controllers
         // UPDATE
         // ============================================
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRol(int id, [FromBody] RolUpdateDTO dto)
+        public async Task<ActionResult<RolGetDTO>> UpdateRol(int id, [FromBody] RolUpdateDTO dto)
         {
             var updated = await _service.UpdateRoleAsync(id, dto);
-            if (!updated) return NotFound();
+            if (updated == null) return NotFound();
 
-            return NoContent();
+            return Ok(updated);
         }
 
         // ============================================
