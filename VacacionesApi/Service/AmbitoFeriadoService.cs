@@ -53,19 +53,24 @@ public class AmbitoFeriadoService
             return entidad;
         }
 
-        public async Task<bool> Update(int id, AmbitoFeriadoUpdateDTO dto)
+        public async Task<AmbitoFeriadoGetDTO> Update(int id, AmbitoFeriadoUpdateDTO dto)
         {
             var ambito = await _context.AmbitoFeriados.FindAsync(id);
 
             if (ambito == null)
-                return false;
+                return null;
 
             ambito.Nombre = dto.Nombre;
             ambito.ModificaionFecha = DateTime.Now;
             ambito.ModificacionUsuario = "system";
 
             await _context.SaveChangesAsync();
-            return true;
+            return new AmbitoFeriadoGetDTO
+            {
+              Nombre = ambito.Nombre,
+              IdAmbito = ambito.IdAmbito,
+                
+            };
         }
 
         public async Task<bool> Delete(int id)

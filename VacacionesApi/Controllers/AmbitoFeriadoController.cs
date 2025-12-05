@@ -38,11 +38,11 @@ namespace VacacionesApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, AmbitoFeriadoUpdateDTO dto)
+        public async Task<ActionResult<AmbitoFeriadoGetDTO>> Update(int id, AmbitoFeriadoUpdateDTO dto)
         {
             var actualizado = await _service.Update(id, dto);
-            if (!actualizado) return NotFound();
-            return NoContent();
+            if (actualizado == null) return NotFound();
+            return Ok(actualizado);
         }
 
         [HttpDelete("{id}")]

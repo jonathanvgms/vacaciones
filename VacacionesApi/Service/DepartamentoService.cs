@@ -74,17 +74,25 @@ namespace VacacionesApi.Services
         }
 
         // UPDATE (recibe DTO de actualización)
-        public async Task<bool> UpdateAsync(int id, DepartamentoUpdateDTO dto)
+        public async Task<DepartamentoGetDTO> UpdateAsync(int id, DepartamentoUpdateDTO dto)
         {
             var existente = await _context.Departamentos.FindAsync(id);
-            if (existente == null) return false;
+            if (existente == null) return null;
 
             existente.Nombre = dto.Nombre;
             existente.ModificacionFecha = DateTime.Now;
             existente.ModificacionUsuario = dto.ModificacionUsuario;
 
             await _context.SaveChangesAsync();
-            return true;
+            return new DepartamentoGetDTO
+            {
+                IdDepartamento = existente.IdDepartamento,
+                Nombre = existente.Nombre,
+                CreacionFecha = existente.CreacionFecha,
+                CreacionUsuario = existente.CreacionUsuario,
+                ModificacionFecha = existente.ModificacionFecha,
+                ModificacionUsuario = existente.ModificacionUsuario
+            };
         }
 
         // DELETE

@@ -46,8 +46,8 @@ namespace VacacionesApi.Controllers
         public async Task<IActionResult> UpdateDepartamento(int id, [FromBody] DepartamentoUpdateDTO dto)
         {
             var ok = await _service.UpdateAsync(id, dto);
-            if (!ok) return NotFound();
-            return NoContent();
+            if (ok == null) return NotFound();
+            return Ok(ok);
         }
 
         // DELETE
